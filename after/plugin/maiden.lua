@@ -143,4 +143,3 @@ vim.api.nvim_create_user_command("MaidenInstall", function()
 	local package = vim.fn.input("Enter package to install: ")
 	install(package)
 end, {})
-
