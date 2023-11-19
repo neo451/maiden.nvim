@@ -1,8 +1,12 @@
 local M = {}
--- more robust: add host name and command stuff
+
+local maiden = require("maiden")
+local host = maiden.defaults.addr
+
 function M.run_repl()
-	vim.cmd("8split | terminal")
-	local command = ':call jobsend(b:terminal_job_id, "maiden\\n")'
+	vim.cmd("7split | terminal")
+	local argument = "maiden-remote-repl" .. " --host " .. host
+	local command = string.format(':call jobsend(b:terminal_job_id, "%s\\n")', argument)
 	vim.cmd(command)
 end
 

@@ -61,10 +61,11 @@ end
 
 -- HACK: DO THE LIVE RELOAD HERE
 function M.load_script()
+  local line = vim.api.nvim_get_current_line()
 	local host = M.defaults.addr
 	Job:new({
 		command = "maiden-remote-repl",
-		args = { "--host", host, "send", "norns.script.load(norns.state.script)" },
+		args = { "--host", host, "send", line },
 		on_exit = function(j, return_val)
 			print("Return value:", return_val)
 			print("Output:", table.concat(j:result(), "\n"))
