@@ -57,6 +57,7 @@ WIP
   ```
 - [x] read, select and install from the catalog (through maiden cli)
 - [ ] make a nice lazy/mason like UI to manage scripts
+- [ ] edit and load sc files?????
 - [x] implement remote repl in lua for better integration and less dependency
 - [ ] make a nvim-cmp source for norns methods
 - [ ] auto make folder and option to unmount on vimexit
