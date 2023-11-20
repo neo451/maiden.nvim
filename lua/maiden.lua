@@ -1,19 +1,22 @@
 local M = {}
+local websocket_client = require("ws.websocket_client")
+
 M.defaults = {
 	dir = "/home/n451/snorns",
 	addr = "192.168.43.179",
 }
--- HACK: REAL LIVE RELOAD IS NOT FULL RELOAD! SEND THE CHANGED LINE TO THE REPL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+-- TODO: USE NATIVE REPL TO STOP etc
+-- TODO: TRY NETMAN OR COMMIT TO SSHFS?
+-- TODO: LIVE RELOAD MAYBE SHOULD BE BIND TO KEYMAP RATHER THAN AUTO
 M.setup = function(opts)
 	M.defaults = vim.tbl_extend("force", M.defaults, opts or {})
 end
 
 local Job = require("plenary.job")
 function M.sync(addr)
-  if addr == '' then
-    addr = M.defaults.addr
-  end
+	if addr == "" then
+		addr = M.defaults.addr
+	end
 	Job:new({
 		command = "sshfs",
 		args = {
@@ -44,46 +47,33 @@ function M.unsync()
 	}):start()
 end
 
-function M.reload_script()
-	local host = M.defaults.addr
-	Job:new({
-		command = "maiden-remote-repl",
-		args = { "--host", host, "send", "norns.script.load(norns.state.script)" },
-		on_exit = function(j, return_val)
-			print("Return value:", return_val)
-			print("Output:", table.concat(j:result(), "\n"))
-		end,
-		on_stderr = function(_, data)
-			print("Error:", table.concat(data, "\n"))
-		end,
-	}):start() -- Use sync to wait for the job to finish
+local host = M.defaults.addr
+local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
+
+function M.send_oneoff(command)
+	local _msg = ""
+	ws.on_open(function()
+		ws.send(command .. "\n")
+		print("connected")
+	end)
+	ws.on_message(function(msg)
+		_msg = msg:to_string()
+		print(_msg)
+	end)
+	ws.connect()
 end
 
--- HACK: DO THE LIVE RELOAD HERE
 function M.load_script()
-  local line = vim.api.nvim_get_current_line()
-	local host = M.defaults.addr
-	Job:new({
-		command = "maiden-remote-repl",
-		args = { "--host", host, "send", line },
-		on_exit = function(j, return_val)
-			print("Return value:", return_val)
-			print("Output:", table.concat(j:result(), "\n"))
-		end,
-		on_stderr = function(_, data)
-			print("Error:", table.concat(data, "\n"))
-		end,
-	}):start() -- Use sync to wait for the job to finish
+	local line = vim.api.nvim_get_current_line()
+	M.send_oneoff(line)
 end
 
-
+-- TODO: make a user command
+function M.reload_script()
+	M.send_oneoff("norns.script.load(norns.state.script)")
+end
 
 -- TODO: FUNCTION TO END PALYING
--- vim.api.nvim_create_user_command("MaidenStop",
---
--- )
-
--- TODO: list the catalog
 
 local catalog = {}
 
@@ -126,7 +116,35 @@ local function list_catalog()
 	return clean_catalog()
 end
 
--- TODO: FUNCTION TO install a script
+-- HACK: same for project manager UNINSTALL(U)
+-- HACK: MAKE KEYMAPS TO INSTALL(I), VIEW NORNS COMMITY(N)
+--
+-- TODO: MAKE this more generic to handle project and catalog
+local function show_scripts()
+	local buf = vim.api.nvim_create_buf(false, true)
+	local width = 80
+	local height = 10
+	local win_id = vim.api.nvim_open_win(buf, true, {
+		relative = "editor",
+		width = width,
+		height = height,
+		row = math.floor(vim.o.lines / 2 - height / 2),
+		col = math.floor(vim.o.columns / 2 - width / 2),
+		focusable = true,
+		style = "minimal",
+    border = "double",
+	})
+	for i, v in ipairs(list_catalog()) do
+		local line = ""
+		if v[3] ~= nil and v[3] ~= "[]" then
+			line = v[1] .. " " .. v[3]
+		else
+			line = v[1]
+		end
+		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
+	end
+end
+
 local function install(script)
 	Job:new({
 		command = "ssh",
@@ -143,6 +161,11 @@ local function install(script)
 			end
 		end,
 	}):start()
+end
+
+-- TODO: UNINSTALL
+local function uninstall(script)
+
 end
 
 return M
