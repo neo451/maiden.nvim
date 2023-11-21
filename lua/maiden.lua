@@ -1,28 +1,23 @@
 local M = {}
-local stackmap = require("stackmap")
-local websocket_client = require("ws.websocket_client")
-
 M.defaults = {
 	dir = "/home/n451/snorns",
 	addr = "192.168.43.179",
 }
--- HACK: !!!!
-local function add_command(name, fn, desc)
-  vim.api.nvim_buf_create_user_command(0, name, fn, { desc = desc })
-end
-
-
-
+local websocket_client = require("ws.websocket_client")
+local Job = require("plenary.job")
+local stackmap = require("stackmap")
+local host = M.defaults.addr
+local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
+local catalog = require("catalog")
 
 -- TODO: USE NATIVE REPL TO STOP etc
 -- TODO: TRY NETMAN OR COMMIT TO SSHFS?
--- TODO: LIVE RELOAD MAYBE SHOULD BE BIND TO KEYMAP RATHER THAN AUTO
 M.setup = function(opts)
 	M.defaults = vim.tbl_extend("force", M.defaults, opts or {})
 end
 
-local Job = require("plenary.job")
-function M.sync(addr)
+function M.sync()
+	vim.fn.input("Enter norns address: ", addr)
 	if addr == "" then
 		addr = M.defaults.addr
 	end
@@ -56,9 +51,6 @@ function M.unsync()
 	}):start()
 end
 
-local host = M.defaults.addr
-local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
-
 function M.send_oneoff(command)
 	local _msg = ""
 	ws.on_open(function()
@@ -82,76 +74,52 @@ function M.reload_script()
 	M.send_oneoff("norns.script.load(norns.state.script)")
 end
 
--- TODO: FUNCTION TO END PALYING
-function M.stop_script()
-	M.send_oneoff("clock.transport.stop()")
-end
--- TODO: NOT RIGHT
-function M.run_script(script)
-  local name = string.format("norns.script.load('%s')", script)
-	M.send_oneoff(name)
-end
-
-local catalog = {}
-
-local function clean_string(input_string)
-	local cleaned_elements = {}
-	for elem1, elem2, elem3 in string.gmatch(input_string, "(.-)\t\t+(.-)\t\t+(.+)") do
-		cleaned_elements[1] = elem1:match("^%s*(.-)%s*$")
-		cleaned_elements[2] = elem2:match("^%s*(.-)%s*$")
-		cleaned_elements[3] = elem3:match("^%s*(.-)%s*$")
-	end
-	return cleaned_elements
-end
-
-local function clean_catalog()
-	local res = {}
-	for _, v in ipairs(catalog) do
-		table.insert(res, clean_string(v))
-	end
-	return res
-end
-
-local function list_catalog()
-	Job:new({
-		command = "ssh",
-		args = {
-			"we@192.168.43.179",
-			"maiden/maiden catalog list",
-		},
-		on_stdout = function(_, data)
-			table.insert(catalog, data)
-		end,
-		on_exit = function(_, exit_code)
-			if exit_code == 0 then
-				print("Command executed successfully")
-			else
-				print("Error executing the command. Error code:", exit_code)
-			end
-		end,
-	}):sync()
-	return clean_catalog()
-end
-
-function M.get_script()
-  local line = vim.api.nvim_get_current_line()
-  local path = line:match("(.+)%s")
-  print(path)
-end
-
 -- HACK: same for project manager UNINSTALL(U)
 -- HACK: MAKE KEYMAPS TO INSTALL(I), VIEW NORNS COMMITY(N)
+-- TODO: MAKE this more generic to handle project and catalog
+-- TODO: LOOK HIGHTLIGHT STUFF TO DIFFERENCIATE PROJECT AND CATALOG
+
+local get_script = function()
+	local line = vim.api.nvim_get_current_line()
+	local res = {}
+	for i, v in ipairs(catalog) do
+		if line == v["project_name"] then
+			res[1], res[2] = v["project_url"], v["documentation_url"]
+		end
+	end
+	return res[1], res[2], line
+end
+
+M.open_documentation_url = function()
+	local _, url = get_script()
+	Job:new({
+		command = "xdg-open",
+		args = { url },
+	}):start()
+end
+
+M.open_project_url = function()
+	local url = get_script()
+	Job:new({
+		command = "xdg-open",
+		args = { url },
+	}):start()
+end
+
+
 
 local keymaps = {
-  ["<C-i>"] = ":lua require'maiden'.get_script()<cr>",
+	["<leader>i"] = ":lua require'maiden'.install_from_line()<cr>",
+	["<leader>u"] = ":lua require'maiden'.uninstall_form_line()<cr>",
+	["<leader>d"] = ":lua require'maiden'.open_documentation_url()<cr>",
+	["<leader>p"] = ":lua require'maiden'.open_project_url()<cr>",
 }
 
--- TODO: MAKE this more generic to handle project and catalog
 local function show_scripts()
 	local buf = vim.api.nvim_create_buf(false, true)
-	local width = 80
-	local height = 10
-	local win_id = vim.api.nvim_open_win(buf, true, {
+	local width = 120
+	local height = 20
+	vim.api.nvim_open_win(buf, true, {
 		relative = "editor",
 		width = width,
 		height = height,
@@ -161,18 +129,17 @@ local function show_scripts()
 		style = "minimal",
 		border = "double",
 	})
-	for _, v in ipairs(list_catalog()) do
-		local line = ""
-		if v[3] ~= nil and v[3] ~= "[]" then
-			line = v[1] .. " " .. v[3]
-		else
-			line = v[1]
+	for i, v in ipairs(catalog) do
+		local line = v.project_name
+		local desc = v.description
+		if v.tags ~= nil then
+			desc = desc .. " | " .. table.concat(v["tags"], ", ")
 		end
-		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
+		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line, desc })
 	end
-  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
-  stackmap.push("maiden", "n", keymaps)
+	stackmap.push("maiden", "n", keymaps)
 end
+show_scripts()
 
 local function install(script)
 	Job:new({
@@ -181,9 +148,34 @@ local function install(script)
 			"we@192.168.43.179",
 			"maiden/maiden project install " .. script,
 		},
-		on_stdout = function(_, data)
-			table.insert(catalog, data)
+		on_exit = function(_, exit_code)
+			if exit_code ~= 0 then
+				print("Error executing the command. Error code:", exit_code)
+      else
+        print("installed")
+			end
 		end,
+	}):start()
+end
+
+function M.install()
+  local script = vim.fn.input("Enter script name: ")
+  install(script)
+end
+
+M.install_from_line = function ()
+  local line = vim.api.nvim_get_current_line()
+  print(line)
+  install(line)
+end
+
+local function uninstall(script)
+	Job:new({
+		command = "ssh",
+		args = {
+			"we@192.168.43.179",
+			"maiden/maiden project remove " .. script,
+		},
 		on_exit = function(_, exit_code)
 			if exit_code ~= 0 then
 				print("Error executing the command. Error code:", exit_code)
@@ -192,7 +184,14 @@ local function install(script)
 	}):start()
 end
 
--- TODO: UNINSTALL
-local function uninstall(script) end
+M.uninstall = function ()
+	local script = vim.fn.input("Enter script name: ")
+  uninstall(script)
+end
+
+M.uninstall_form_line = function()
+  local line = vim.api.nvim_get_current_line()
+  uninstall(line)
+end
 
 return M
