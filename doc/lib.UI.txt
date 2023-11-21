@@ -1,0 +1,426 @@
+lib.UI
+-   lib.textentry
+-   lib.textentry_kbd
+-   lib.timeline
+-   lib.UI
+-   lib.util
+-   lib.voice
+
+Module lib.UI
+
+UI widgets module.
+
+Widgets for paging, tabs, lists, dials, sliders, etc.
+
+Info:
+
+-   Release: v1.0.2
+-   Author: Mark Eats
+
+Pages
+
+  ---------------------------------------- --------------------------------
+  UI.Pages.new (index, num_pages)          Create a new Pages object.
+  UI.Pages:set_index (index)               Set selected page.
+  UI.Pages:set_index_delta (delta, wrap)   Set selected page using delta.
+  UI.Pages:redraw ()                       Redraw Pages.
+  ---------------------------------------- --------------------------------
+
+Tabs
+
+  --------------------------------------- -------------------------------
+  UI.Tabs.new (index, titles)             Create a new Tabs object.
+  UI.Tabs:set_index (index)               Set selected tab.
+  UI.Tabs:set_index_delta (delta, wrap)   Set selected tab using delta.
+  UI.Tabs:redraw ()                       Redraw Tabs.
+  --------------------------------------- -------------------------------
+
+List
+
+  --------------------------------------- -----------------------------------
+  UI.List.new (x, y, index, entries)      Create a new List object.
+  UI.List:set_index (index)               Set selected entry.
+  UI.List:set_index_delta (delta, wrap)   Set selected list using delta.
+  UI.List:set_active (state)              Set selected list's active state.
+  UI.List:redraw ()                       Redraw List.
+  --------------------------------------- -----------------------------------
+
+ScrollingList
+
+  ------------------------------------------------ ---------------------------------------------
+  UI.ScrollingList.new (x, y, index, entries)      Create a new ScrollingList object.
+  UI.ScrollingList:set_index (index)               Set selected entry.
+  UI.ScrollingList:set_index_delta (delta, wrap)   Set selected scrolling list using delta.
+  UI.ScrollingList:set_active (state)              Set selected scrolling list's active state.
+  UI.ScrollingList:redraw ()                       Redraw ScrollingList.
+  ------------------------------------------------ ---------------------------------------------
+
+Message
+
+  ------------------------------- ------------------------------
+  UI.Message.new (text_array)     Create a new Message object.
+  UI.Message:set_active (state)   Set message's active state.
+  UI.Message:redraw ()            Redraw Message.
+  ------------------------------- ------------------------------
+
+Slider
+
+  -------------------------------------------------------------------------------- -----------------------------
+  UI.Slider.new (x, y, width, height, value, min_value, max_value, markers, the)   Create a new Slider object.
+  UI.Slider:set_value (number)                                                     Set value.
+  UI.Slider:set_value_delta (delta)                                                Set value using delta.
+  UI.Slider:set_marker_position (id, position)                                     Set marker position.
+  UI.Slider:set_active (state)                                                     Set slider's active state.
+  UI.Slider:redraw ()                                                              Redraw Slider.
+  -------------------------------------------------------------------------------- -----------------------------
+
+Dial
+
+  ----------------------------------------------------------------------------------------------------- ---------------------------
+  UI.Dial.new (x, y, size, value, min_value, max_value, rounding, start_value, markers, units, title)   Create a new Dial object.
+  UI.Dial:set_value (number)                                                                            Set value.
+  UI.Dial:set_value_delta (delta)                                                                       Set value using delta.
+  UI.Dial:set_marker_position (id, position)                                                            Set marker position.
+  UI.Dial:set_active (state)                                                                            Set dial's active state.
+  UI.Dial:redraw ()                                                                                     Redraw Dial.
+  ----------------------------------------------------------------------------------------------------- ---------------------------
+
+PlaybackIcon
+
+  ------------------------------------------ -----------------------------------
+  UI.PlaybackIcon.new (x, y, size, status)   Create a new PlaybackIcon object.
+  UI.PlaybackIcon:set_status (status)        Set PlaybackIcon's status.
+  UI.PlaybackIcon:set_active (state)         Set PlaybackIcon's active state.
+  UI.PlaybackIcon:redraw ()                  Redraw PlaybackIcon.
+  ------------------------------------------ -----------------------------------
+
+Pages
+
+ UI.Pages.new (index, num_pages)
+
+    Create a new Pages object.
+
+    Parameters:
+
+    -   index number Selected page, defaults to 1.
+    -   num_pages number Total number of pages, defaults to 3.
+
+    Returns:
+
+ UI.Pages:set_index (index)
+
+    Set selected page.
+
+    Parameters:
+
+    -   index number Page number.
+
+ UI.Pages:set_index_delta (delta, wrap)
+
+    Set selected page using delta.
+
+    Parameters:
+
+    -   delta number Number to move from selected page.
+    -   wrap boolean Boolean, true to wrap pages.
+
+ UI.Pages:redraw ()
+    Redraw Pages. Call when changed.
+
+Tabs
+
+ UI.Tabs.new (index, titles)
+
+    Create a new Tabs object.
+
+    Parameters:
+
+    -   index number Selected tab, defaults to 1.
+    -   titles {string,...} Table of strings for tab titles.
+
+    Returns:
+
+ UI.Tabs:set_index (index)
+
+    Set selected tab.
+
+    Parameters:
+
+    -   index number Tab number.
+
+ UI.Tabs:set_index_delta (delta, wrap)
+
+    Set selected tab using delta.
+
+    Parameters:
+
+    -   delta number Number to move from selected tab.
+    -   wrap boolean Boolean, true to wrap tabs.
+
+ UI.Tabs:redraw ()
+    Redraw Tabs. Call when changed.
+
+List
+
+ UI.List.new (x, y, index, entries)
+
+    Create a new List object.
+
+    Parameters:
+
+    -   x number X position, defaults to 0.
+    -   y number Y position, defaults to 0.
+    -   index number Selected entry, defaults to 1.
+    -   entries {string,...} Table of strings for list entries.
+
+    Returns:
+
+ UI.List:set_index (index)
+
+    Set selected entry.
+
+    Parameters:
+
+    -   index number Entry number.
+
+ UI.List:set_index_delta (delta, wrap)
+
+    Set selected list using delta.
+
+    Parameters:
+
+    -   delta number Number to move from selected entry.
+    -   wrap boolean Boolean, true to wrap list.
+
+ UI.List:set_active (state)
+
+    Set selected list's active state.
+
+    Parameters:
+
+    -   state boolean Boolean, true for active.
+
+ UI.List:redraw ()
+    Redraw List. Call when changed.
+
+ScrollingList
+
+ UI.ScrollingList.new (x, y, index, entries)
+
+    Create a new ScrollingList object.
+
+    Parameters:
+
+    -   x number X position, defaults to 0.
+    -   y number Y position, defaults to 0.
+    -   index number Selected entry, defaults to 1.
+    -   entries {string,...} Table of strings for list entries.
+
+    Returns:
+
+ UI.ScrollingList:set_index (index)
+
+    Set selected entry.
+
+    Parameters:
+
+    -   index number Entry number.
+
+ UI.ScrollingList:set_index_delta (delta, wrap)
+
+    Set selected scrolling list using delta.
+
+    Parameters:
+
+    -   delta number Number to move from selected entry.
+    -   wrap boolean Boolean, true to wrap list.
+
+ UI.ScrollingList:set_active (state)
+
+    Set selected scrolling list's active state.
+
+    Parameters:
+
+    -   state boolean Boolean, true for active.
+
+ UI.ScrollingList:redraw ()
+    Redraw ScrollingList. Call when changed.
+
+Message
+
+ UI.Message.new (text_array)
+
+    Create a new Message object.
+
+    Parameters:
+
+    -   text_array [string,...] Array of lines of text.
+
+    Returns:
+
+ UI.Message:set_active (state)
+
+    Set message's active state.
+
+    Parameters:
+
+    -   state boolean Boolean, true for active.
+
+ UI.Message:redraw ()
+    Redraw Message. Call when changed.
+
+Slider
+
+ UI.Slider.new (x, y, width, height, value, min_value, max_value, markers, the)
+
+    Create a new Slider object.
+
+    Parameters:
+
+    -   x number X position, defaults to 0.
+    -   y number Y position, defaults to 0.
+    -   width number Width of slider, defaults to 3.
+    -   height number Height of slider, defaults to 36.
+    -   value number Current value, defaults to 0.
+    -   min_value number Minimum value, defaults to 0.
+    -   max_value number Maximum value, defaults to 1.
+    -   markers table Array of marker positions.
+    -   the string direction of the slider "up" (defult), down, left,
+        right
+
+    Returns:
+
+ UI.Slider:set_value (number)
+
+    Set value.
+
+    Parameters:
+
+    -   number number Value number.
+
+ UI.Slider:set_value_delta (delta)
+
+    Set value using delta.
+
+    Parameters:
+
+    -   delta number Number.
+
+ UI.Slider:set_marker_position (id, position)
+
+    Set marker position.
+
+    Parameters:
+
+    -   id number Marker number.
+    -   position number Marker position number.
+
+ UI.Slider:set_active (state)
+
+    Set slider's active state.
+
+    Parameters:
+
+    -   state boolean Boolean, true for active.
+
+ UI.Slider:redraw ()
+    Redraw Slider. Call when changed.
+
+Dial
+
+ UI.Dial.new (x, y, size, value, min_value, max_value, rounding, start_value, markers, units, title)
+
+    Create a new Dial object.
+
+    Parameters:
+
+    -   x number X position, defaults to 0.
+    -   y number Y position, defaults to 0.
+    -   size number Diameter of dial, defaults to 22.
+    -   value number Current value, defaults to 0.
+    -   min_value number Minimum value, defaults to 0.
+    -   max_value number Maximum value, defaults to 1.
+    -   rounding number Sets precision to round value to, defaults to
+        0.01.
+    -   start_value number Sets where fill line is drawn from, defaults
+        to 0.
+    -   markers table Array of marker positions.
+    -   units string String to display after value text.
+    -   title string String to be displayed instead of value text.
+
+    Returns:
+
+ UI.Dial:set_value (number)
+
+    Set value.
+
+    Parameters:
+
+    -   number number Value number.
+
+ UI.Dial:set_value_delta (delta)
+
+    Set value using delta.
+
+    Parameters:
+
+    -   delta number Number.
+
+ UI.Dial:set_marker_position (id, position)
+
+    Set marker position.
+
+    Parameters:
+
+    -   id number Marker number.
+    -   position number Marker position number.
+
+ UI.Dial:set_active (state)
+
+    Set dial's active state.
+
+    Parameters:
+
+    -   state boolean Boolean, true for active.
+
+ UI.Dial:redraw ()
+    Redraw Dial. Call when changed.
+
+PlaybackIcon
+
+ UI.PlaybackIcon.new (x, y, size, status)
+
+    Create a new PlaybackIcon object.
+
+    Parameters:
+
+    -   x number X position, defaults to 0.
+    -   y number Y position, defaults to 0.
+    -   size number Icon size, defaults to 6.
+    -   status number Status number. 1 = Play, 2 = Reverse Play, 3 =
+        Pause, 4 = Stop. Defaults to 1.
+
+    Returns:
+
+ UI.PlaybackIcon:set_status (status)
+
+    Set PlaybackIcon's status.
+
+    Parameters:
+
+    -   status number Status number. 1 = Play, 2 = Reverse Play, 3 =
+        Pause, 4 = Stop.
+
+ UI.PlaybackIcon:set_active (state)
+
+    Set PlaybackIcon's active state.
+
+    Parameters:
+
+    -   state boolean Boolean, true for active.
+
+ UI.PlaybackIcon:redraw ()
+    Redraw PlaybackIcon. Call when changed.
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

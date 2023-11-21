@@ -1,0 +1,217 @@
+lib.EnvGraph
+Module lib.EnvGraph
+
+Envelope graph drawing module.
+
+Subclass of Graph for drawing common envelope graphs. Includes DADSR,
+ADSR, ASR and AR (Perc).
+
+Info:
+
+-   Release: v1.0.1
+-   Author: Mark Eats
+
+Functions
+
+  ---------------------------------------------------------------------------------------------- -----------------------------------------
+  new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)   Create a new DADSR EnvGraph object.
+  edit_dadsr (delay, attack, decay, sustain, release, level, curve)                              Edit a DADSR EnvGraph object.
+  new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)           Create a new ADSR EnvGraph object.
+  edit_adsr (attack, decay, sustain, release, level, curve)                                      Edit an ADSR EnvGraph object.
+  new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)                            Create a new ASR EnvGraph object.
+  edit_asr (attack, release, level, curve)                                                       Edit an ASR EnvGraph object.
+  new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)                             Create a new AR (Perc) EnvGraph object.
+  edit_ar (attack, release, level, curve)                                                        Edit an AR (Perc) EnvGraph object.
+  get_delay ()                                                                                   Get delay value.
+  get_attack ()                                                                                  Get attack value.
+  get_decay ()                                                                                   Get decay value.
+  get_sustain ()                                                                                 Get sustain value.
+  get_release ()                                                                                 Get release value.
+  get_level ()                                                                                   Get level value.
+  get_curve ()                                                                                   Get curve value.
+  ---------------------------------------------------------------------------------------------- -----------------------------------------
+
+Functions
+
+ new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)
+
+    Create a new DADSR EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   x_min number Minimum value for x axis, defaults to 0.
+    -   x_max number Maximum value for x axis, defaults to 1.
+    -   y_min number Minimum value for y axis, defaults to 0.
+    -   y_max number Maximum value for y axis, defaults to 1.
+    -   delay number Delay value, defaults to 0.1
+    -   attack number Attack value, defaults to 0.05.
+    -   decay number Decay value, defaults to 0.2.
+    -   sustain number Sustain value, accepts 0-1, defaults to 0.5.
+    -   release number Release value, defaults to 0.3.
+    -   level number Level value, accepts y_min to y_max, defaults to 1.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+    Returns:
+
+ edit_dadsr (delay, attack, decay, sustain, release, level, curve)
+
+    Edit a DADSR EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   delay number Delay value.
+    -   attack number Attack value.
+    -   decay number Decay value.
+    -   sustain number Sustain value, accepts 0-1.
+    -   release number Release value.
+    -   level number Level value, accepts y_min to y_max.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+ new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)
+
+    Create a new ADSR EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   x_min number Minimum value for x axis, defaults to 0.
+    -   x_max number Maximum value for x axis, defaults to 1.
+    -   y_min number Minimum value for y axis, defaults to 0.
+    -   y_max number Maximum value for y axis, defaults to 1.
+    -   attack number Attack value, defaults to 0.05.
+    -   decay number Decay value, defaults to 0.2.
+    -   sustain number Sustain value, accepts 0-1, defaults to 0.5.
+    -   release number Release value, defaults to 0.3.
+    -   level number Level value, accepts y_min to y_max, defaults to 1.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+    Returns:
+
+ edit_adsr (attack, decay, sustain, release, level, curve)
+
+    Edit an ADSR EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   attack number Attack value.
+    -   decay number Decay value.
+    -   sustain number Sustain value, accepts 0-1.
+    -   release number Release value.
+    -   level number Level value, accepts y_min to y_max.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+ new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)
+
+    Create a new ASR EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   x_min number Minimum value for x axis, defaults to 0.
+    -   x_max number Maximum value for x axis, defaults to 1.
+    -   y_min number Minimum value for y axis, defaults to 0.
+    -   y_max number Maximum value for y axis, defaults to 1.
+    -   attack number Attack value, defaults to 0.05.
+    -   release number Release value, defaults to 0.3.
+    -   level number Level value, accepts y_min to y_max, defaults to 1.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+    Returns:
+
+ edit_asr (attack, release, level, curve)
+
+    Edit an ASR EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   attack number Attack value.
+    -   release number Release value.
+    -   level number Level value, accepts y_min to y_max.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+ new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)
+
+    Create a new AR (Perc) EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   x_min number Minimum value for x axis, defaults to 0.
+    -   x_max number Maximum value for x axis, defaults to 1.
+    -   y_min number Minimum value for y axis, defaults to 0.
+    -   y_max number Maximum value for y axis, defaults to 1.
+    -   attack number Attack value, defaults to 0.05.
+    -   release number Release value, defaults to 0.3.
+    -   level number Level value, accepts y_min to y_max, defaults to 1.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+    Returns:
+
+ edit_ar (attack, release, level, curve)
+
+    Edit an AR (Perc) EnvGraph object. All arguments optional.
+
+    Parameters:
+
+    -   attack number Attack value.
+    -   release number Release value.
+    -   level number Level value, accepts y_min to y_max.
+    -   curve string or number Curve of envelope, accepts "lin", "exp"
+        or a number where 0 is linear and positive and negative numbers
+        curve the envelope up and down, defaults to -4.
+
+ get_delay ()
+
+    Get delay value.
+
+    Returns:
+
+ get_attack ()
+
+    Get attack value.
+
+    Returns:
+
+ get_decay ()
+
+    Get decay value.
+
+    Returns:
+
+ get_sustain ()
+
+    Get sustain value.
+
+    Returns:
+
+ get_release ()
+
+    Get release value.
+
+    Returns:
+
+ get_level ()
+
+    Get level value.
+
+    Returns:
+
+ get_curve ()
+
+    Get curve value.
+
+    Returns:
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

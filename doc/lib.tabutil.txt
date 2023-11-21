@@ -1,0 +1,184 @@
+lib.tabutil
+Module lib.tabutil
+
+table utility
+
+Functions
+
+  ------------------------------------------ ---------------------------------------------------------------------------------------------------------
+  print (t)                                  print the contents of a table
+  sort (t)                                   return a lexigraphically sorted array of keys for a table
+  count (t)                                  count the number of entries in a table; unlike table.getn() or #table, nil entries won't break the loop
+  contains (t, e)                            search table for element
+  invert (t:)                                given a simple table of primitives, "invert" it so that values become keys and vice versa.
+  key (t, e)                                 search table for element, return key
+  lines (str)                                split multi-line string into table of strings
+  split (inputstr, sep)                      split string into table with delimiter
+  save (tbl, filename)                       Save a table to disk.
+  load (sfile)                               Load a table that has been saved via the tab.save() function.
+  readonly (params)                          Create a read-only proxy for a given table.
+  gather (default_values, custom_values)     return new table, gathering values: - first from default_values, - then from (i.e.
+  update (table_to_mutate, updated_values)   mutate first table, updating values from second table.
+  select_values (t, condition)               Create a new table with all values that pass the test implemented by the provided function.
+  ------------------------------------------ ---------------------------------------------------------------------------------------------------------
+
+Functions
+
+ print (t)
+
+    print the contents of a table
+
+    Parameters:
+
+    -   t table table to print
+
+ sort (t)
+
+    return a lexigraphically sorted array of keys for a table
+
+    Parameters:
+
+    -   t table table to sort
+
+    Returns:
+
+ count (t)
+
+    count the number of entries in a table; unlike table.getn() or
+    #table, nil entries won't break the loop
+
+    Parameters:
+
+    -   t table table to count
+
+    Returns:
+
+ contains (t, e)
+
+    search table for element
+
+    Parameters:
+
+    -   t table table to check
+    -   e element to look for
+
+    Returns:
+
+ invert (t:)
+
+    given a simple table of primitives, "invert" it so that values
+    become keys and vice versa. this allows more efficient checks on
+    multiple values
+
+    Parameters:
+
+    -   t: a simple table
+
+ key (t, e)
+
+    search table for element, return key
+
+    Parameters:
+
+    -   t table table to check
+    -   e element to look for
+
+    Returns:
+
+ lines (str)
+
+    split multi-line string into table of strings
+
+    Parameters:
+
+    -   str string string with line breaks
+
+    Returns:
+
+ split (inputstr, sep)
+
+    split string into table with delimiter
+
+    Parameters:
+
+    -   inputstr string : string to split
+    -   sep string : delimiter
+
+ save (tbl, filename)
+
+    Save a table to disk. Saves tables, numbers, booleans and strings.
+    Inside table references are saved. Does not save userdata,
+    metatables, functions and indices of these. Based on
+    http://lua-users.org/wiki/SaveTableToFile by ChillCode.
+
+    Parameters:
+
+    -   tbl table Table to save.
+    -   filename string Location to save to.
+
+    Returns:
+
+ load (sfile)
+
+    Load a table that has been saved via the tab.save() function.
+
+    Parameters:
+
+    -   sfile string Filename or stringtable to load.
+
+    Returns:
+
+ readonly (params)
+
+    Create a read-only proxy for a given table.
+
+    Parameters:
+
+    -   params params.table is the table to proxy, params.except a list
+        of writable keys, params.expose limits which keys from
+        params.table are exposed (optional)
+
+    Returns:
+
+ gather (default_values, custom_values)
+
+    return new table, gathering values: - first from default_values, -
+    then from (i.e. overridden by) custom_values nils in custom_values
+    are ignored
+
+    Parameters:
+
+    -   default_values table base values (provides keys & fallback
+        values)
+    -   custom_values table override values (take precedence)
+
+    Returns:
+
+ update (table_to_mutate, updated_values)
+
+    mutate first table, updating values from second table. new keys from
+    second table will be added to first. nils in updated_values are
+    ignored
+
+    Parameters:
+
+    -   table_to_mutate table table to mutate
+    -   updated_values table override values (take precedence)
+
+    Returns:
+
+ select_values (t, condition)
+
+    Create a new table with all values that pass the test implemented by
+    the provided function.
+
+    Parameters:
+
+    -   t table table to check
+    -   condition callback function that tests all values of provided
+        table, passes value and key as arguments
+
+    Returns:
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

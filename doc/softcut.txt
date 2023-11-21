@@ -1,0 +1,702 @@
+softcut
+Module softcut
+
+Softcut module
+
+API for controlling the "softcut" buffer processor includes low-level
+setters and mid-level utilities
+
+IMPORTANT: all indices are 1-based, per lua convention! this applies to
+indices for selecting voice, ADC/DAC channel, buffer, &c.
+
+however, _quantities_ (including units of time) can still start at zero.
+
+  -------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  level (voice, amp)                                                                           set output level of each voice
+  pan (voice, pos)                                                                             set pan position of each voice.
+  level_input_cut (ch, voice, amp)                                                             set input level to each voice/channel.
+  level_cut_cut (src, dst, amp)                                                                set mix matrix, voice output to voice input.
+  play (voice, state)                                                                          set play status.
+  rate (voice, rate)                                                                           set playback rate.
+  loop_start (voice, pos)                                                                      set loop start.
+  loop_end (voice, pos)                                                                        set loop end.
+  loop (voice, state)                                                                          set loop mode.
+  fade_time (voice, pos)                                                                       set fade time.
+  rec_level (voice, amp)                                                                       set record level.
+  pre_level (voice, amp)                                                                       set pre level (overdub preserve.) this sets the realtime-modulated "preserve" level, by which existing material is scaled on each pass of the write head.
+  rec (voice, state)                                                                           set record state.
+  rec_offset (voice, value)                                                                    set record head offset
+  position (voice, value)                                                                      set play position
+  buffer (i, b)                                                                                specify buffer used by voice.
+  voice_sync (src, dst, offset)                                                                synchronize two voices.
+  pre_filter_fc (voice, fc)                                                                    set pre_filter cutoff frequency.
+  pre_filter_fc_mod (voice, amount)                                                            set pre_filter amount of rate modulation.
+  pre_filter_rq (voice, rq)                                                                    set pre_filter reciprocal of Q-factor.
+  pre_filter_lp (voice, amp)                                                                   set pre_filter lowpass output level.
+  pre_filter_hp (voice, amp)                                                                   set pre-filter highpass output level.
+  pre_filter_bp (voice, amp)                                                                   set pre-filter bandpass output level.
+  pre_filter_br (voice, amp)                                                                   set pre_filter band-reject output level.
+  pre_filter_dry (voice, amp)                                                                  set pre_filter dry output level.
+  filter_fc (voice, value)                                                                     wrappers around pre_filter, for backwards compatibility
+  post_filter_fc (voice, value)                                                                set post-filter cutoff
+  post_filter_rq (voice, rq)                                                                   set post-filter reciprocal of Q the reciprocal of the filter's Q factor is a measure of bandwidth, that is independent of center frequency.
+  post_filter_lp (voice, amp)                                                                  set post_filter lowpass output level.
+  post_filter_hp (voice, amp)                                                                  set post-filter highpass output level.
+  post_filter_bp (voice, amp)                                                                  set post-filter bandpass output level.
+  post_filter_br (voice, amp)                                                                  set post_filter band-reject output level.
+  post_filter_dry (voice, amp)                                                                 set post_filter dry output level.
+  level_slew_time (voice, time)                                                                set level-slew time this slew time applies to level at all mix points: ADC->voice, voice->voice, &c.
+  pan_slew_time (voice, time)                                                                  set pan slew time
+  recpre_slew_time (voice, time)                                                               set recpre slew time affects slew time for record and pre levels
+  rate_slew_time (voice, time)                                                                 set rate slew time affects slew time for rate
+  phase_quant (voice, quantum)                                                                 set phase poll quantum e.g.
+  phase_offset (voice, offset)                                                                 set phase poll offset in frames
+  poll_start_phase ()                                                                          start phase poll
+  poll_stop_phase ()                                                                           stop phase poll
+  enable (voice, state)                                                                        set voice enable disabled voices have no effect and consume basically zero CPU
+  buffer_clear ()                                                                              clear all buffers completely
+  buffer_clear_channel (channel)                                                               clear one buffer completely
+  buffer_clear_region (start, dur, fade_time, preserve)                                        clear region (both channels)
+  buffer_clear_region_channel (ch, start, dur, fade_time, preserve)                            clear region of single channel
+  buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)   copy region from one point in a buffer to another
+  buffer_copy_stereo (start_src, start_dst, dur, fade_time, preserve, reverse)                 copy region of both buffers to another point
+  buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix)            read mono soundfile to arbitrary region of single buffer
+  buffer_read_stereo (file, start_src, start_dst, dur, preserve, mix)                          read stereo soundfile to an arbitrary region in both buffers
+  buffer_write_mono (file, start, dur, ch)                                                     write an arbitrary buffer region to soundfile (mono)
+  buffer_write_stereo (file, start, dur)                                                       write an arbitrary region from both buffers to stereo soundfile
+  event_phase (func)                                                                           set function for phase poll
+  render_buffer (ch, start, dur, samples)                                                      request snapshot of buffer content for region.
+  process_buffer (ch, start, dur, sleep_time, block_size)                                      request that softcut process buffer with user-defined process function usage: clock.run(softcut.process_buffer(ch, start, dur, sleep_time, block_size))
+  event_render (func)                                                                          set function for render callback.
+  process_func (func)                                                                          set function for processing of buffer.
+  event_done (func)                                                                            set function for job callback.
+  query_position (i)                                                                           query playback position
+  event_position (func)                                                                        set function for query callback.
+  reset ()                                                                                     reset state of softcut process on backend.
+  defaults ()                                                                                  get the default state of the softcut system this returns a table for each voice, in which each key corresponds to the name of one of the setter functions defined above.
+  params ()                                                                                    controlspec factory each table contains an entry for each softcut parameter.
+  -------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ level (voice, amp)
+
+    set output level of each voice
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ pan (voice, pos)
+
+    set pan position of each voice. -1 == full left, +1 == full right, 0
+    == centered
+
+    Parameters:
+
+    -   voice int : voice index
+    -   pos number : position in [-1, 1]
+
+ level_input_cut (ch, voice, amp)
+
+    set input level to each voice/channel.
+
+    Parameters:
+
+    -   ch int : ADC channel index
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ level_cut_cut (src, dst, amp)
+
+    set mix matrix, voice output to voice input.
+
+    Parameters:
+
+    -   src number : source voice index
+    -   dst number : destination voice index
+    -   amp number : linear amplitude
+
+ play (voice, state)
+
+    set play status.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   state int : off/on (0,1)
+
+ rate (voice, rate)
+
+    set playback rate.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   rate number : speed of read/write head (unitless; 1 == normal)
+
+ loop_start (voice, pos)
+
+    set loop start.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   pos number : loop start position in seconds
+
+ loop_end (voice, pos)
+
+    set loop end.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   pos number : loop end position in seconds
+
+ loop (voice, state)
+
+    set loop mode. "0" indicates one-shot mode: voice will play to the
+    loop endpoint, fadeout and stop. "1" indicates crossfaded looping
+    mode.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   state int : off/on (0,1)
+
+ fade_time (voice, pos)
+
+    set fade time.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   pos number : loop start position in seconds
+
+ rec_level (voice, amp)
+
+    set record level. this sets the realtime-modulated record level, by
+    which incoming signal is scaled before writing to the buffer
+    `recpre` slew level applies
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude of new signal
+
+ pre_level (voice, amp)
+
+    set pre level (overdub preserve.) this sets the realtime-modulated
+    "preserve" level, by which existing material is scaled on each pass
+    of the write head. `recpre` slew level applies
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude of preserved signal
+
+ rec (voice, state)
+
+    set record state.
+
+    Parameters:
+
+    -   voice int : voice number (1-?)
+    -   state int : off/on (0,1)
+
+ rec_offset (voice, value)
+
+    set record head offset
+
+    Parameters:
+
+    -   voice
+    -   value
+
+ position (voice, value)
+
+    set play position
+
+    Parameters:
+
+    -   voice
+    -   value
+
+ buffer (i, b)
+
+    specify buffer used by voice.
+
+    Parameters:
+
+    -   i int : voice number
+    -   b int : buffer number (1,2)
+
+ voice_sync (src, dst, offset)
+
+    synchronize two voices. position of "dst" will be immediately set to
+    that of "source"
+
+    Parameters:
+
+    -   src int : source voice index
+    -   dst int : destination voice index
+    -   offset number : additional offset in seconds
+
+ pre_filter_fc (voice, fc)
+
+    set pre_filter cutoff frequency.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   fc number : cutoff frequency in Hz
+
+ pre_filter_fc_mod (voice, amount)
+
+    set pre_filter amount of rate modulation. this parameter controls
+    the amount by which the current rate affects filter cutoff frequency
+    (always in a negative direction, towards zero.) with mod == 1,
+    setting rate = 0 will also fully close the filter. this can be
+    useful as a crude anti-aliasing method...
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amount number : modulation amount in [0, 1]
+
+ pre_filter_rq (voice, rq)
+
+    set pre_filter reciprocal of Q-factor. the reciprocal of the
+    filter's Q-factor is a measure of bandwidth, that is independent of
+    center frequency. RQ ~= 0 will result in self-oscillation; RQ == 4
+    gives a bandwidth of 2 octaves.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   rq number : reciprocal of filter Q-factor for voice
+
+ pre_filter_lp (voice, amp)
+
+    set pre_filter lowpass output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ pre_filter_hp (voice, amp)
+
+    set pre-filter highpass output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ pre_filter_bp (voice, amp)
+
+    set pre-filter bandpass output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ pre_filter_br (voice, amp)
+
+    set pre_filter band-reject output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ pre_filter_dry (voice, amp)
+
+    set pre_filter dry output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ filter_fc (voice, value)
+
+    wrappers around pre_filter, for backwards compatibility
+
+    Parameters:
+
+    -   voice
+    -   value
+
+ post_filter_fc (voice, value)
+
+    set post-filter cutoff
+
+    Parameters:
+
+    -   voice int : voice index
+    -   value number : cutoff frequency in Hz
+
+ post_filter_rq (voice, rq)
+
+    set post-filter reciprocal of Q the reciprocal of the filter's Q
+    factor is a measure of bandwidth, that is independent of center
+    frequency. RQ ~= 0 will result in self oscillation; RQ == 4 gives a
+    bandwidth of 2 octaves.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   rq number : reciprocal of filter Q-factor for voice
+
+ post_filter_lp (voice, amp)
+
+    set post_filter lowpass output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ post_filter_hp (voice, amp)
+
+    set post-filter highpass output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ post_filter_bp (voice, amp)
+
+    set post-filter bandpass output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ post_filter_br (voice, amp)
+
+    set post_filter band-reject output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ post_filter_dry (voice, amp)
+
+    set post_filter dry output level.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   amp number : linear amplitude
+
+ level_slew_time (voice, time)
+
+    set level-slew time this slew time applies to level at all mix
+    points: ADC->voice, voice->voice, &c.
+
+    Parameters:
+
+    -   voice int : voice index
+    -   time number : exponential slew time in seconds (-60db
+        convergence)
+
+ pan_slew_time (voice, time)
+
+    set pan slew time
+
+    Parameters:
+
+    -   voice int : voice index
+    -   time number : exponential slew time in seconds (-60db
+        convergence)
+
+ recpre_slew_time (voice, time)
+
+    set recpre slew time affects slew time for record and pre levels
+
+    Parameters:
+
+    -   voice int : voice index
+    -   time number : exponential slew time in seconds (-60db
+        convergence)
+
+ rate_slew_time (voice, time)
+
+    set rate slew time affects slew time for rate
+
+    Parameters:
+
+    -   voice int : voice index
+    -   time number : exponential slew time in seconds (-60db
+        convergence)
+
+ phase_quant (voice, quantum)
+
+    set phase poll quantum e.g. 0.25 will produce 4 updates per second
+    with rate=1 judicious use of this parameter is preferable to using a
+    very fast poll (for performance,) or polling at arbitrary rate (for
+    accuracy when rate is slewed.)
+
+    Parameters:
+
+    -   voice int : voice index
+    -   quantum number : phase reporting interval, in seconds
+
+ phase_offset (voice, offset)
+
+    set phase poll offset in frames
+
+    Parameters:
+
+    -   voice int : voice index
+    -   offset number : phase poll offset in seconds
+
+ poll_start_phase ()
+    start phase poll
+
+ poll_stop_phase ()
+    stop phase poll
+
+ enable (voice, state)
+
+    set voice enable disabled voices have no effect and consume
+    basically zero CPU
+
+    Parameters:
+
+    -   voice int : voice number (1-?)
+    -   state int : off/on (0,1)
+
+ buffer_clear ()
+    clear all buffers completely
+
+ buffer_clear_channel (channel)
+
+    clear one buffer completely
+
+    Parameters:
+
+    -   channel int : buffer channel index (1-based)
+
+ buffer_clear_region (start, dur, fade_time, preserve)
+
+    clear region (both channels)
+
+    Parameters:
+
+    -   start number : start point in seconds
+    -   dur number : duration in seconds
+    -   fade_time number : crossfade time in seconds
+    -   preserve number : level of existing material
+
+ buffer_clear_region_channel (ch, start, dur, fade_time, preserve)
+
+    clear region of single channel
+
+    Parameters:
+
+    -   ch int : buffer channel index (1-based)
+    -   start number : start point in seconds
+    -   dur number : duration in seconds
+    -   fade_time number : crossfade time in seconds
+    -   preserve number : level of existing material
+
+ buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
+
+    copy region from one point in a buffer to another
+
+    Parameters:
+
+    -   src_ch int : source buffer index (1-based)
+    -   dst_ch int : destination buffer index (1-based)
+    -   start_src number : start point in source, in seconds
+    -   start_dst number : start point in destination, in seconds
+    -   dur number : duration in seconds. if -1, copy as much as
+        possible.
+    -   fade_time number : crossfade time in seconds
+    -   preserve number : level of existing material
+    -   reverse int : nonzero to reverse while copying. when reversing,
+        overlap between source and destination regions is not handled.
+
+ buffer_copy_stereo (start_src, start_dst, dur, fade_time, preserve, reverse)
+
+    copy region of both buffers to another point
+
+    Parameters:
+
+    -   start_src number : start point in source, in seconds
+    -   start_dst number : start point in destination, in seconds
+    -   dur number : duration in seconds. if -1, copy as much as
+        possible.
+    -   fade_time number : crossfade time in seconds
+    -   preserve number : level of existing material
+    -   reverse int : nonzero to reverse while copying.
+
+ buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix)
+
+    read mono soundfile to arbitrary region of single buffer
+
+    Parameters:
+
+    -   file string : input file path
+    -   start_src number : start point in source, in seconds
+    -   start_dst number : start point in destination, in seconds
+    -   dur number : duration in seconds. if -1, read as much as
+        possible.
+    -   ch_src int : soundfile channel to read
+    -   ch_dst int : buffer channel to write
+    -   preserve number : level of existing material
+    -   mix number : level of new material
+
+ buffer_read_stereo (file, start_src, start_dst, dur, preserve, mix)
+
+    read stereo soundfile to an arbitrary region in both buffers
+
+    Parameters:
+
+    -   file string : input file path
+    -   start_src number : start point in source, in seconds
+    -   start_dst number : start point in destination, in seconds
+    -   dur number : duration in seconds. if -1, read as much as
+        possible
+    -   preserve number : level of existing material
+    -   mix number : level of new material
+
+ buffer_write_mono (file, start, dur, ch)
+
+    write an arbitrary buffer region to soundfile (mono)
+
+    Parameters:
+
+    -   file string : output file path
+    -   start number : start point in seconds
+    -   dur number : duration in seconds. if -1, read as much as
+        possible
+    -   ch int : buffer channel index (1-based)
+
+ buffer_write_stereo (file, start, dur)
+
+    write an arbitrary region from both buffers to stereo soundfile
+
+    Parameters:
+
+    -   file string : output file path
+    -   start number : start point in seconds
+    -   dur number : duration in seconds. if -1, read as much as
+        possible
+
+ event_phase (func)
+
+    set function for phase poll
+
+    Parameters:
+
+    -   func function : callback function. this function should take two
+        parameters (voice, phase)
+
+ render_buffer (ch, start, dur, samples)
+
+    request snapshot of buffer content for region.
+
+    Parameters:
+
+    -   ch integer : buffer channel index (1-based)
+    -   start number : beginning of region in seconds
+    -   dur number : length of region in seconds
+    -   samples integer : max number of samples to retrieve. if less
+        than the number of frames in the region, content will be
+        downsampled
+
+ process_buffer (ch, start, dur, sleep_time, block_size)
+
+    request that softcut process buffer with user-defined process
+    function usage: clock.run(softcut.process_buffer(ch, start, dur,
+    sleep_time, block_size))
+
+    Parameters:
+
+    -   ch integer : buffer channel index (1-based)
+    -   start number : beginning of region in seconds
+    -   dur number : length of region in seconds
+    -   sleep_time number : amount of time to wait between blocks in
+        seconds; default 0.2
+    -   block_size integer : number of samples per block; default 1024
+
+ event_render (func)
+
+    set function for render callback. use render_buffer to request
+    contents.
+
+    Parameters:
+
+    -   func function : called when buffer content is ready. args: (ch,
+        start, sec_per_sample, samples)
+
+ process_func (func)
+
+    set function for processing of buffer. use process_buffer to apply.
+
+    Parameters:
+
+    -   func function : called when buffer content is processed. args:
+        (sample_index, current_value)
+
+ event_done (func)
+
+    set function for job callback. called when process_buffer is
+    complete.
+
+    Parameters:
+
+    -   func function : called when buffer job is complete. args: (ch,
+        job_type, num_to_expect)
+
+ query_position (i)
+
+    query playback position
+
+    Parameters:
+
+    -   i integer : which softcut voice
+
+ event_position (func)
+
+    set function for query callback. use query_position to request
+    contents.
+
+    Parameters:
+
+    -   func function : called when index and position is returned
+
+ reset ()
+    reset state of softcut process on backend. this should correspond to
+    the values returned by the `defaults()` function above.
+
+ defaults ()
+
+    get the default state of the softcut system this returns a table for
+    each voice, in which each key corresponds to the name of one of the
+    setter functions defined above. for parameters with one value per
+    voice, the corresponding entry is also a single value. for
+    parameters with multiple values (e.g. matrix indices), the entry is
+    a table. NB: these values are synchronized by hand with those
+    specified in the softcut cpp sources
+
+    Returns:
+
+ params ()
+
+    controlspec factory each table contains an entry for each softcut
+    parameter. each entry is a parameter argument list configured for
+    that voice+param
+
+    Returns:
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

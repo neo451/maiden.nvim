@@ -1,0 +1,160 @@
+controlspec
+
+Module controlspec
+
+ControlSpec Class
+
+Functions
+
+  ----------------------------------------------------------------------- ----------------------------------------------------------------------------------------------
+  ControlSpec.new (min, max, warp, step, default, units, quantum, wrap)   constructor
+  ControlSpec.def (args)                                                  create generic controlspec helper function to create controlspec using a table of parameters
+  ControlSpec:map (value)                                                 transform an incoming value between 0 and 1 through this ControlSpec
+  ControlSpec:unmap (value)                                               untransform a transformed value into its original value
+  ControlSpec:copy ()                                                     copy this ControlSpec into a new one
+  ControlSpec:print ()                                                    print out the configuration of this ControlSpec
+  ----------------------------------------------------------------------- ----------------------------------------------------------------------------------------------
+
+Presets
+
+  -------------------------- --------------------------------------------------------------
+  ControlSpec.UNIPOLAR       converts values to a unipolar range
+  ControlSpec.BIPOLAR        converts values to bipolar range
+  ControlSpec.FREQ           converts to a frequency range
+  ControlSpec.LOFREQ         converts to a low frequency range
+  ControlSpec.MIDFREQ        converts to a mid frequency range
+  ControlSpec.WIDEFREQ       converts to an exponential frequency range from 0.1 to 20khz
+  ControlSpec.PHASE          maps into pi for controlling phase values
+  ControlSpec.RQ             converts to an exponential RQ range
+  ControlSpec.MIDI           converts to a MIDI range (default 64)
+  ControlSpec.MIDINOTE       converts to a range for MIDI notes (default 60)
+  ControlSpec.MIDIVELOCITY   converts to a range for MIDI velocity (default 64)
+  ControlSpec.DB             converts to a dB range
+  ControlSpec.AMP            converts to a linear amplitude range (0-1)
+  ControlSpec.PAN            converts to a panning range (-1 - 1)
+  ControlSpec.DETUNE         converts to a detune range
+  ControlSpec.RATE           converts to a sensible range for playback rate
+  ControlSpec.BEATS          convert to a good range for beats
+  ControlSpec.DELAY          converts to a good range for delay
+  -------------------------- --------------------------------------------------------------
+
+Functions
+
+ ControlSpec.new (min, max, warp, step, default, units, quantum, wrap)
+
+    constructor
+
+    Parameters:
+
+    -   min number the minimum value of the output range
+    -   max number the maximum value of the output range
+    -   warp string ('exp', 'db', 'lin') a shaping option for incoming
+        data (default is 'lin')
+    -   step number quantization value. output will be rounded to a
+        multiple of step
+    -   default number a default value for when no value has been set
+    -   units string an indicator for the unit of measure the data
+        represents
+    -   quantum number input quantization value. adjustments are made by
+        this fraction of the range
+    -   wrap boolean true to wrap around on overflow rather than
+        clamping
+
+    Returns:
+
+ ControlSpec.def (args)
+
+    create generic controlspec helper function to create controlspec
+    using a table of parameters
+
+    Parameters:
+
+    -   args
+
+ ControlSpec:map (value)
+
+    transform an incoming value between 0 and 1 through this ControlSpec
+
+    Parameters:
+
+    -   value number the incoming value
+
+    Returns:
+
+ ControlSpec:unmap (value)
+
+    untransform a transformed value into its original value
+
+    Parameters:
+
+    -   value number a previously transformed value
+
+    Returns:
+
+ ControlSpec:copy ()
+
+    copy this ControlSpec into a new one
+
+    Returns:
+
+ ControlSpec:print ()
+    print out the configuration of this ControlSpec
+
+Presets
+
+ ControlSpec.UNIPOLAR
+    converts values to a unipolar range
+
+ ControlSpec.BIPOLAR
+    converts values to bipolar range
+
+ ControlSpec.FREQ
+    converts to a frequency range
+
+ ControlSpec.LOFREQ
+    converts to a low frequency range
+
+ ControlSpec.MIDFREQ
+    converts to a mid frequency range
+
+ ControlSpec.WIDEFREQ
+    converts to an exponential frequency range from 0.1 to 20khz
+
+ ControlSpec.PHASE
+    maps into pi for controlling phase values
+
+ ControlSpec.RQ
+    converts to an exponential RQ range
+
+ ControlSpec.MIDI
+    converts to a MIDI range (default 64)
+
+ ControlSpec.MIDINOTE
+    converts to a range for MIDI notes (default 60)
+
+ ControlSpec.MIDIVELOCITY
+    converts to a range for MIDI velocity (default 64)
+
+ ControlSpec.DB
+    converts to a dB range
+
+ ControlSpec.AMP
+    converts to a linear amplitude range (0-1)
+
+ ControlSpec.PAN
+    converts to a panning range (-1 - 1)
+
+ ControlSpec.DETUNE
+    converts to a detune range
+
+ ControlSpec.RATE
+    converts to a sensible range for playback rate
+
+ ControlSpec.BEATS
+    convert to a good range for beats
+
+ ControlSpec.DELAY
+    converts to a good range for delay
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

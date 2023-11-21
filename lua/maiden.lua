@@ -1,10 +1,19 @@
 local M = {}
+local stackmap = require("stackmap")
 local websocket_client = require("ws.websocket_client")
 
 M.defaults = {
 	dir = "/home/n451/snorns",
 	addr = "192.168.43.179",
 }
+-- HACK: !!!!
+local function add_command(name, fn, desc)
+  vim.api.nvim_buf_create_user_command(0, name, fn, { desc = desc })
+end
+
+
+
+
 -- TODO: USE NATIVE REPL TO STOP etc
 -- TODO: TRY NETMAN OR COMMIT TO SSHFS?
 -- TODO: LIVE RELOAD MAYBE SHOULD BE BIND TO KEYMAP RATHER THAN AUTO
@@ -74,6 +83,14 @@ function M.reload_script()
 end
 
 -- TODO: FUNCTION TO END PALYING
+function M.stop_script()
+	M.send_oneoff("clock.transport.stop()")
+end
+-- TODO: NOT RIGHT
+function M.run_script(script)
+  local name = string.format("norns.script.load('%s')", script)
+	M.send_oneoff(name)
+end
 
 local catalog = {}
 
@@ -116,9 +133,19 @@ local function list_catalog()
 	return clean_catalog()
 end
 
+function M.get_script()
+  local line = vim.api.nvim_get_current_line()
+  local path = line:match("(.+)%s")
+  print(path)
+end
+
 -- HACK: same for project manager UNINSTALL(U)
 -- HACK: MAKE KEYMAPS TO INSTALL(I), VIEW NORNS COMMITY(N)
---
+
+local keymaps = {
+  ["<C-i>"] = ":lua require'maiden'.get_script()<cr>",
+}
+
 -- TODO: MAKE this more generic to handle project and catalog
 local function show_scripts()
 	local buf = vim.api.nvim_create_buf(false, true)
@@ -132,9 +159,9 @@ local function show_scripts()
 		col = math.floor(vim.o.columns / 2 - width / 2),
 		focusable = true,
 		style = "minimal",
-    border = "double",
+		border = "double",
 	})
-	for i, v in ipairs(list_catalog()) do
+	for _, v in ipairs(list_catalog()) do
 		local line = ""
 		if v[3] ~= nil and v[3] ~= "[]" then
 			line = v[1] .. " " .. v[3]
@@ -143,6 +170,8 @@ local function show_scripts()
 		end
 		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
 	end
+  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+  stackmap.push("maiden", "n", keymaps)
 end
 
 local function install(script)
@@ -164,8 +193,6 @@ local function install(script)
 end
 
 -- TODO: UNINSTALL
-local function uninstall(script)
-
-end
+local function uninstall(script) end
 
 return M

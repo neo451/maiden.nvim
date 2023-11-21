@@ -1,0 +1,257 @@
+lib.MusicUtil
+Module lib.MusicUtil
+
+Music utility module.
+
+Utility methods for working with notes, scales and chords.
+
+Info:
+
+-   Release: v1.1.2
+-   Author: Mark Eats
+
+Functions
+
+  ----------------------------------------------------------------------- -----------------------------------------------------------------
+  generate_scale (root_num, scale_type[, octaves])                        Generate scale from a root note.
+  generate_scale_of_length (root_num, scale_type, length)                 Generate given number of notes of a scale from a root note.
+  generate_chord (root_num, chord_type[, inversion])                      Generate chord from a root note.
+  generate_chord_roman (root_num, scale_type, roman_chord_type)           Generate chord from a root note.
+  generate_chord_scale_degree (root_num, scale_type, degree[, seventh])   Generate chord from a root note.
+  chord_types_for_note (note_num, key_root, key_type)                     List chord types for a given root note and key.
+  snap_note_to_array (note_num, snap_array)                               Snap a MIDI note number to the nearest note number in an array.
+  snap_notes_to_array (note_nums_array, snap_array)                       Snap an array of MIDI note numbers to an array of note numbers.
+  note_num_to_name (note_num[, include_octave])                           Return a MIDI note number's note name.
+  note_nums_to_names (note_nums_array[, include_octave])                  Return an array of MIDI note numbers' names.
+  note_num_to_freq (note_num)                                             Return a MIDI note number's frequency.
+  note_nums_to_freqs (note_nums_array)                                    Return an array of MIDI note numbers' frequencies.
+  freq_to_note_num (freq)                                                 Return a frequency's nearest MIDI note number.
+  freqs_to_note_nums (freqs_array)                                        Return an array of frequencies' nearest MIDI note numbers.
+  interval_to_ratio (interval)                                            Return the ratio of an interval.
+  intervals_to_ratios (intervals_array)                                   Return an array of ratios of intervals.
+  ratio_to_interval (ratio)                                               Return the interval of a ratio.
+  ratios_to_intervals (ratios_array)                                      Return an array of intervals of ratios.
+  ----------------------------------------------------------------------- -----------------------------------------------------------------
+
+Functions
+
+ generate_scale (root_num, scale_type[, octaves])
+
+    Generate scale from a root note.
+
+    Parameters:
+
+    -   root_num integer MIDI note number (0-127) where scale will
+        begin.
+    -   scale_type string String defining scale type (eg, "major",
+        "aeolian" or "neapolitan major"), see class for full list.
+    -   octaves integer Number of octaves to return, defaults to 1.
+        (optional)
+
+    Returns:
+
+ generate_scale_of_length (root_num, scale_type, length)
+
+    Generate given number of notes of a scale from a root note.
+
+    Parameters:
+
+    -   root_num integer MIDI note number (0-127) where scale will
+        begin.
+    -   scale_type integer String defining scale type (eg, "major",
+        "aeolian" or "neapolitan major"), see class for full list.
+    -   length integer Number of notes to return, defaults to 8.
+
+    Returns:
+
+ generate_chord (root_num, chord_type[, inversion])
+
+    Generate chord from a root note.
+
+    Parameters:
+
+    -   root_num integer MIDI note number (0-127) for chord.
+    -   chord_type string String defining chord type (eg, "major",
+        "minor 7" or "sus4"), see class for full list.
+    -   inversion integer Number of chord inversion. (optional)
+
+    Returns:
+
+ generate_chord_roman (root_num, scale_type, roman_chord_type)
+
+    Generate chord from a root note.
+
+    Parameters:
+
+    -   root_num integer MIDI note number (0-127) defining the key.
+    -   scale_type string String defining scale type (eg, "major",
+        "dorian"), see class for full list.
+    -   roman_chord_type string Roman-numeral-style string defining
+        chord type (eg, "V", "iv7" or "III+") including limited bass
+        notes (e.g. "iv6-9") and lowercase-letter inversion notation
+        (e.g. "IIb" for first inversion) Will only return chords defined
+        in MusicUtil.CHORDS.
+
+    Returns:
+
+ generate_chord_scale_degree (root_num, scale_type, degree[, seventh])
+
+    Generate chord from a root note.
+
+    Parameters:
+
+    -   root_num integer MIDI note number (0-127) defining the key.
+    -   scale_type string String defining scale type (eg, "major",
+        "dorian"), see class for full list.
+    -   degree integer Number between 1-7 selecting the degree of the
+        chord. See MusicUtil.SCALE_CHORD_DEGREES for chords assigned to
+        each degree. Will only return chords defined in
+        MusicUtil.CHORDS.
+    -   seventh boolean Return the 7th chord if set to true (optional)
+        (optional)
+
+    Returns:
+
+ chord_types_for_note (note_num, key_root, key_type)
+
+    List chord types for a given root note and key.
+
+    Parameters:
+
+    -   note_num integer MIDI note number (0-127) for root of chord.
+    -   key_root integer MIDI note number (0-127) for root of key.
+    -   key_type string String defining key type (eg, "major", "aeolian"
+        or "neapolitan major"), see class for full list.
+
+    Returns:
+
+ snap_note_to_array (note_num, snap_array)
+
+    Snap a MIDI note number to the nearest note number in an array.
+
+    Parameters:
+
+    -   note_num integer MIDI note number input (0-127).
+    -   snap_array {integer...} Array of MIDI note numbers to snap to,
+        must be in low to high order.
+
+    Returns:
+
+ snap_notes_to_array (note_nums_array, snap_array)
+
+    Snap an array of MIDI note numbers to an array of note numbers.
+
+    Parameters:
+
+    -   note_nums_array {integer...} Array of input MIDI note numbers.
+    -   snap_array {integer...} Array of MIDI note numbers to snap to,
+        must be in low to high order.
+
+    Returns:
+
+ note_num_to_name (note_num[, include_octave])
+
+    Return a MIDI note number's note name.
+
+    Parameters:
+
+    -   note_num integer MIDI note number (0-127).
+    -   include_octave boolean Include octave number in return string if
+        set to true. (optional)
+
+    Returns:
+
+ note_nums_to_names (note_nums_array[, include_octave])
+
+    Return an array of MIDI note numbers' names.
+
+    Parameters:
+
+    -   note_nums_array {integer...} Array of MIDI note numbers.
+    -   include_octave boolean Include octave number in return strings
+        if set to true. (optional)
+
+    Returns:
+
+ note_num_to_freq (note_num)
+
+    Return a MIDI note number's frequency.
+
+    Parameters:
+
+    -   note_num integer MIDI note number (0-127).
+
+    Returns:
+
+ note_nums_to_freqs (note_nums_array)
+
+    Return an array of MIDI note numbers' frequencies.
+
+    Parameters:
+
+    -   note_nums_array {integer...} Array of MIDI note numbers.
+
+    Returns:
+
+ freq_to_note_num (freq)
+
+    Return a frequency's nearest MIDI note number.
+
+    Parameters:
+
+    -   freq float Frequency number in Hz.
+
+    Returns:
+
+ freqs_to_note_nums (freqs_array)
+
+    Return an array of frequencies' nearest MIDI note numbers.
+
+    Parameters:
+
+    -   freqs_array {float...} Array of frequency numbers in Hz.
+
+    Returns:
+
+ interval_to_ratio (interval)
+
+    Return the ratio of an interval.
+
+    Parameters:
+
+    -   interval float Interval in semitones.
+
+    Returns:
+
+ intervals_to_ratios (intervals_array)
+
+    Return an array of ratios of intervals.
+
+    Parameters:
+
+    -   intervals_array {float...} Array of intervals in semitones.
+
+    Returns:
+
+ ratio_to_interval (ratio)
+
+    Return the interval of a ratio.
+
+    Parameters:
+
+    -   ratio float Ratio number.
+
+    Returns:
+
+ ratios_to_intervals (ratios_array)
+
+    Return an array of intervals of ratios.
+
+    Parameters:
+
+    -   ratios_array {float...} Array of ratio numbers.
+
+    Returns:
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

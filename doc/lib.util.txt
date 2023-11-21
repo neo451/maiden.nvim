@@ -1,0 +1,270 @@
+lib.util
+Module lib.util
+
+db to amp.
+
+Functions
+
+  --------------------------------- ---------------------------------------------------------------
+  time ()                           get system time in fractional seconds
+  scandir (directory)               scan directory, return file list.
+  file_exists (name)                check if file exists.
+  file_size (name)                  query file size.
+  make_dir (path)                   make directory (with parents as needed).
+  os_capture (cmd, raw)             execute os command, capture output.
+  string_starts (s, start)          string begins with.
+  trim_string_to_width (s, width)   trim string to a display width
+  clamp (n, min, max)               clamp values to min max.
+  linexp (slo, shi, dlo, dhi, f)    convert a linear range to an exponential range
+  linlin (slo, shi, dlo, dhi, f)    map a linear range to another linear range.
+  explin (slo, shi, dlo, dhi, f)    convert an exponential range to a linear range.
+  expexp (slo, shi, dlo, dhi, f)    map an exponential range to another exponential range.
+  round (number, quant)             round to a multiple of a number
+  round_up (number, quant)          round up to a multiple of a number.
+  s_to_hms (s)                      format string, seconds to h:m:s.
+  degs_to_rads (degrees)            convert degrees to radians
+  rads_to_degs (radians)            convert radians to degrees
+  acronym (name)                    convert string to acronym
+  wrap (n, min, max)                wrap a integer to a positive min/max range
+  wrap_max (n, min, max)            wrap an integer to a positive min/max range but clamp the min
+  --------------------------------- ---------------------------------------------------------------
+
+Functions
+
+ time ()
+
+    get system time in fractional seconds
+
+    Returns:
+
+ scandir (directory)
+
+    scan directory, return file list.
+
+    Parameters:
+
+    -   directory string path to directory
+
+    Returns:
+
+ file_exists (name)
+
+    check if file exists.
+
+    Parameters:
+
+    -   name string filepath
+
+    Returns:
+
+ file_size (name)
+
+    query file size.
+
+    Parameters:
+
+    -   name string filepath
+
+    Returns:
+
+ make_dir (path)
+
+    make directory (with parents as needed).
+
+    Parameters:
+
+    -   path string
+
+ os_capture (cmd, raw)
+
+    execute os command, capture output.
+
+    Parameters:
+
+    -   cmd string command
+    -   raw raw output (omit for scrubbed)
+
+    Returns:
+
+ string_starts (s, start)
+
+    string begins with.
+
+    Parameters:
+
+    -   s string string to examine
+    -   start string string to search for
+
+    Returns:
+
+ trim_string_to_width (s, width)
+
+    trim string to a display width
+
+    Parameters:
+
+    -   s string string to trim
+    -   width number maximum width
+
+    Returns:
+
+ clamp (n, min, max)
+
+    clamp values to min max.
+
+    Parameters:
+
+    -   n number value
+    -   min number minimum
+    -   max number maximum
+
+    Returns:
+
+ linexp (slo, shi, dlo, dhi, f)
+
+    convert a linear range to an exponential range
+
+    Parameters:
+
+    -   slo number lower limit of input range
+    -   shi number upper limit of input range
+    -   dlo number lower limit of output range (must be non-zero and of
+        the same sign as dhi)
+    -   dhi number upper limit of output range (must be non-zero and of
+        the same sign as dlo)
+    -   f number input to convert
+
+    Returns:
+
+ linlin (slo, shi, dlo, dhi, f)
+
+    map a linear range to another linear range.
+
+    Parameters:
+
+    -   slo number lower limit of input range
+    -   shi number upper limit of input range
+    -   dlo number lower limit of output range
+    -   dhi number upper limit of output range
+    -   f number input to convert
+
+    Returns:
+
+ explin (slo, shi, dlo, dhi, f)
+
+    convert an exponential range to a linear range.
+
+    Parameters:
+
+    -   slo number lower limit of input range (must be non-zero and of
+        the same sign as shi)
+    -   shi number upper limit of input range (must be non-zero and of
+        the same sign as slo)
+    -   dlo number lower limit of output range
+    -   dhi number upper limit of output range
+    -   f number input to convert
+
+    Returns:
+
+ expexp (slo, shi, dlo, dhi, f)
+
+    map an exponential range to another exponential range.
+
+    Parameters:
+
+    -   slo number lower limit of input range (must be non-zero and of
+        the same sign as shi)
+    -   shi number upper limit of input range (must be non-zero and of
+        the same sign as slo)
+    -   dlo number lower limit of output range (must be non-zero and of
+        the same sign as dhi)
+    -   dhi number upper limit of output range (must be non-zero and of
+        the same sign as dlo)
+    -   f number input to convert
+
+    Returns:
+
+ round (number, quant)
+
+    round to a multiple of a number
+
+    Parameters:
+
+    -   number number to round
+    -   quant number precision to round to
+
+ round_up (number, quant)
+
+    round up to a multiple of a number.
+
+    Parameters:
+
+    -   number number to round
+    -   quant number precision to round to
+
+ s_to_hms (s)
+
+    format string, seconds to h:m:s.
+
+    Parameters:
+
+    -   s number seconds
+
+    Returns:
+
+ degs_to_rads (degrees)
+
+    convert degrees to radians
+
+    Parameters:
+
+    -   degrees number
+
+    Returns:
+
+ rads_to_degs (radians)
+
+    convert radians to degrees
+
+    Parameters:
+
+    -   radians number
+
+    Returns:
+
+ acronym (name)
+
+    convert string to acronym
+
+    Parameters:
+
+    -   name string
+
+    Returns:
+
+ wrap (n, min, max)
+
+    wrap a integer to a positive min/max range
+
+    Parameters:
+
+    -   n integer
+    -   min integer
+    -   max integer
+
+    Returns:
+
+ wrap_max (n, min, max)
+
+    wrap an integer to a positive min/max range but clamp the min
+
+    Parameters:
+
+    -   n integer
+    -   min integer
+    -   max integer
+
+    Returns:
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

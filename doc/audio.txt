@@ -1,0 +1,313 @@
+audio
+                                                                 *norns-audio*
+Audio class
+
+Functions
+
+  ----------------------------- ----------------------------------------------
+  Audio.headphone_gain (gain)   set headphone gain.
+  Audio.level_adc (level)       set level for ADC input.
+  Audio.level_dac (level)       set level for both output channels.
+  Audio.level_monitor (level)   set monitor level for both input channels.
+  Audio.monitor_mono ()         set monitor mode to mono.
+  Audio.monitor_stereo ()       set monitor mode to stereo.
+  Audio.level_tape (level)      set tape level.
+  Audio.level_cut (level)       set cut master level.
+  Audio.pitch_on ()             enable input pitch analysis.
+  Audio.pitch_off ()            disable input pitch analysis (saves CPU).
+  Audio.restart ()              restart the audio engine (recompile sclang).
+  ----------------------------- ----------------------------------------------
+
+Effects functions
+
+  ------------------------------- ---------------------------
+  Audio.rev_on ()                 reverb on.
+  Audio.rev_off ()                reverb off.
+  Audio.level_monitor_rev (val)   reverb Monitor level.
+  Audio.level_eng_rev (val)       reverb ENGINE level.
+  Audio.level_tape_rev (val)      reverb TAPE level.
+  Audio.level_rev_dac (val)       reverb DAC level.
+  Audio.rev_param (name, val)     set reverb parameter.
+  Audio.comp_on ()                turn on compressor.
+  Audio.comp_off ()               turn off compressor.
+  Audio.comp_mix (val)            compressor mix amount.
+  Audio.comp_param (name, val)    set compressor parameter.
+  ------------------------------- ---------------------------
+
+Tape Functions
+
+  ------------------------------- -----------------------------
+  Audio.tape_play_open (file)     open a tape file.
+  Audio.tape_play_start ()        start tape playing.
+  Audio.tape_play_stop ()         stop tape playing.
+  Audio.tape_record_open (file)   open a tape recording file.
+  Audio.tape_record_start ()      start tape recording.
+  Audio.tape_record_stop ()       stop tape recording.
+  ------------------------------- -----------------------------
+
+Softcut levels
+
+  ------------------------------ ---------------------------
+  Audio.level_adc_cut (value)    softcut adc level.
+  Audio.level_eng_cut (value)    softcut eng level.
+  Audio.level_tape_cut (value)   softcut tape level.
+  Audio.level_cut_rev (value)    softcut cut reverb level.
+  ------------------------------ ---------------------------
+
+global functions
+
+  --------------------------------- -------------------------
+  Audio.vu (in1, in2, out1, out2)   callback for VU meters.
+  --------------------------------- -------------------------
+
+helpers
+
+  ----------------------------------- -------------------------------------------
+  Audio.set_audio_level (value)       set output level, clamped, save state.
+  Audio.adjust_output_level (delta)   adjust output level, clamped, save state.
+  Audio.file_info (path)              print audio file info
+  ----------------------------------- -------------------------------------------
+
+Functions
+
+ Audio.headphone_gain (gain)
+
+    set headphone gain.
+
+    Parameters:
+
+    -   gain number (0-64)
+
+ Audio.level_adc (level)
+
+    set level for ADC input.
+
+    Parameters:
+
+    -   level in [0, 1]
+
+ Audio.level_dac (level)
+
+    set level for both output channels.
+
+    Parameters:
+
+    -   level in [0, 1]
+
+ Audio.level_monitor (level)
+
+    set monitor level for both input channels.
+
+    Parameters:
+
+    -   level in [0, 1]
+
+ Audio.monitor_mono ()
+    set monitor mode to mono. both inputs will be mixed to both outputs.
+
+ Audio.monitor_stereo ()
+    set monitor mode to stereo. each input will be monitored on the
+    respective output.
+
+ Audio.level_tape (level)
+
+    set tape level.
+
+    Parameters:
+
+    -   level [0,1]
+
+ Audio.level_cut (level)
+
+    set cut master level.
+
+    Parameters:
+
+    -   level [0,1]
+
+ Audio.pitch_on ()
+    enable input pitch analysis.
+
+ Audio.pitch_off ()
+    disable input pitch analysis (saves CPU).
+
+ Audio.restart ()
+    restart the audio engine (recompile sclang).
+
+Effects functions
+
+ Audio.rev_on ()
+    reverb on.
+
+ Audio.rev_off ()
+    reverb off.
+
+ Audio.level_monitor_rev (val)
+
+    reverb Monitor level.
+
+    Parameters:
+
+    -   val number
+
+ Audio.level_eng_rev (val)
+
+    reverb ENGINE level.
+
+    Parameters:
+
+    -   val number
+
+ Audio.level_tape_rev (val)
+
+    reverb TAPE level.
+
+    Parameters:
+
+    -   val number
+
+ Audio.level_rev_dac (val)
+
+    reverb DAC level.
+
+    Parameters:
+
+    -   val number
+
+ Audio.rev_param (name, val)
+
+    set reverb parameter.
+
+    Parameters:
+
+    -   name string
+    -   val number
+
+ Audio.comp_on ()
+    turn on compressor.
+
+ Audio.comp_off ()
+    turn off compressor.
+
+ Audio.comp_mix (val)
+
+    compressor mix amount.
+
+    Parameters:
+
+    -   val number
+
+ Audio.comp_param (name, val)
+
+    set compressor parameter.
+
+    Parameters:
+
+    -   name string
+    -   val number
+
+Tape Functions
+
+ Audio.tape_play_open (file)
+
+    open a tape file.
+
+    Parameters:
+
+    -   file
+
+ Audio.tape_play_start ()
+    start tape playing.
+
+ Audio.tape_play_stop ()
+    stop tape playing.
+
+ Audio.tape_record_open (file)
+
+    open a tape recording file.
+
+    Parameters:
+
+    -   file
+
+ Audio.tape_record_start ()
+    start tape recording.
+
+ Audio.tape_record_stop ()
+    stop tape recording.
+
+Softcut levels
+
+ Audio.level_adc_cut (value)
+
+    softcut adc level.
+
+    Parameters:
+
+    -   value number
+
+ Audio.level_eng_cut (value)
+
+    softcut eng level.
+
+    Parameters:
+
+    -   value number
+
+ Audio.level_tape_cut (value)
+
+    softcut tape level.
+
+    Parameters:
+
+    -   value number
+
+ Audio.level_cut_rev (value)
+
+    softcut cut reverb level.
+
+    Parameters:
+
+    -   value number
+
+global functions
+
+ Audio.vu (in1, in2, out1, out2)
+
+    callback for VU meters. scripts should redefine this.
+
+    Parameters:
+
+    -   in1 input level 1 in [0, 63], audio taper
+    -   in2
+    -   out1
+    -   out2
+
+helpers
+
+ Audio.set_audio_level (value)
+
+    set output level, clamped, save state.
+
+    Parameters:
+
+    -   value number audio level (0-64)
+
+ Audio.adjust_output_level (delta)
+
+    adjust output level, clamped, save state.
+
+    Parameters:
+
+    -   delta number amount to change output level
+
+ Audio.file_info (path)
+
+    print audio file info
+
+    Parameters:
+
+    -   path string (from dust directory)
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

@@ -1,0 +1,501 @@
+screen
+Module screen
+
+Screen class subset of cairo drawing functions.
+
+see https://www.cairographics.org/tutorial/
+
+Functions
+
+  --------------------------------------------------------------------- ----------------------------------------------------------------------------------------
+  Screen.update_default ()                                              copy buffer to screen.
+  Screen.ping ()                                                        restart screen saver timer
+  Screen.update_low_battery ()                                          low battery screen update
+  Screen.aa (state)                                                     enable/disable anti-aliasing.
+  Screen.clear ()                                                       clear.
+  Screen.level (value)                                                  set level (color/brightness).
+  Screen.line_width (w)                                                 set line width.
+  Screen.line_cap (style)                                               set line cap style.
+  Screen.line_join (style)                                              set line join style.
+  Screen.miter_limit (limit)                                            set miter limit.
+  Screen.move (x, y)                                                    move drawing position.
+  Screen.move_rel (x, y)                                                move drawing position relative to current position.
+  Screen.line (x, y)                                                    draw line to specified point.
+  Screen.line_rel (x, y)                                                draw line to specified point relative to current position.
+  Screen.arc (x, y, r, angle1, angle2)                                  draw arc.
+  Screen.circle (x, y, r)                                               draw circle.
+  Screen.rect (x, y, w, h)                                              draw rectangle.
+  Screen.curve (x1, y1, x2, y2, x3, y3)                                 draw curve (cubic Bézier spline).
+  Screen.curve_rel (x1, y1, x2, y2, x3, y3)                             draw curve (cubic Bézier spline) relative coordinates.
+  Screen.close ()                                                       close current path.
+  Screen.stroke ()                                                      stroke current path.
+  Screen.fill ()                                                        fill current path.
+  Screen.text (str)                                                     draw text (left aligned).
+  Screen.text_rotate (x, y, str, degrees)                               draw text (left aligned) and rotated.
+  Screen.text_right (str)                                               draw text, right aligned.
+  Screen.text_center (str)                                              draw text, center aligned.
+  Screen.text_center_rotate (x, y, str, degrees)                        draw text, center aligned, and rotated.
+  Screen.text_extents (str)                                             calculate width of text.
+  Screen.font_face (index)                                              select font face.
+  Screen.font_size (size)                                               set font size.
+  Screen.pixel (x, y)                                                   draw single pixel (requires integer x/y, fill afterwards).
+  Screen.display_png (filename, x, y)                                   display png
+  Screen.load_png (filename)                                            load png into an image buffer
+  Screen.create_image (width, height)                                   create an image buffer
+  Screen.display_image (image, x, y)                                    display image buffer
+  Screen.display_image_region (image, left, top, width, height, x, y)   display sub-region image buffer
+  Screen.draw_to (image, func)                                          direct screen drawing within the provide function into the image instead of the screen
+  Screen.peek (x, y, w, h)                                              get a rectangle of screen content.
+  Screen.poke (x, y, w, h, s)                                           set a rectangle of screen content.
+  Screen.rotate (radians)                                               rotate
+  Screen.translate (x, y)                                               move origin position
+  Screen.save ()                                                        save
+  Screen.blend_mode (index)                                             change screen blending mode.
+  --------------------------------------------------------------------- ----------------------------------------------------------------------------------------
+
+Functions
+
+ Screen.update_default ()
+    copy buffer to screen.
+
+ Screen.ping ()
+    restart screen saver timer
+
+ Screen.update_low_battery ()
+    low battery screen update
+
+ Screen.aa (state)
+
+    enable/disable anti-aliasing.
+
+    Parameters:
+
+    -   state on(1) or off(0)
+
+ Screen.clear ()
+    clear.
+
+ Screen.level (value)
+
+    set level (color/brightness).
+
+    Parameters:
+
+    -   value number 0-15 (0=off, 15=white)
+
+ Screen.line_width (w)
+
+    set line width.
+
+    Parameters:
+
+    -   w number line width (in pixels, floats permitted)
+
+ Screen.line_cap (style)
+
+    set line cap style.
+
+    Parameters:
+
+    -   style line cap style string ("butt", "round" or "square").
+        default is "butt".
+
+ Screen.line_join (style)
+
+    set line join style.
+
+    Parameters:
+
+    -   style line join style string ("miter", "round" or "bevel").
+        default is "miter"
+
+ Screen.miter_limit (limit)
+
+    set miter limit.
+
+    Parameters:
+
+    -   limit if the current line join style is set to "miter", the
+        miter limit is used to determine whether the lines should be
+        joined with a bevel instead of a miter. if the length of the
+        miter divided by the line width is greater than the miter limit,
+        the style is converted to a bevel. default value 10.
+
+ Screen.move (x, y)
+
+    move drawing position.
+
+    Parameters:
+
+    -   x number position x
+    -   y number position y
+
+ Screen.move_rel (x, y)
+
+    move drawing position relative to current position.
+
+    Parameters:
+
+    -   x number relative position x
+    -   y number relative position y
+
+ Screen.line (x, y)
+
+    draw line to specified point.
+
+    Parameters:
+
+    -   x number destination x
+    -   y number destination y
+
+ Screen.line_rel (x, y)
+
+    draw line to specified point relative to current position.
+
+    Parameters:
+
+    -   x number relative destination x
+    -   y number relative destination y
+
+ Screen.arc (x, y, r, angle1, angle2)
+
+    draw arc.
+
+    Parameters:
+
+    -   x number circle center x
+    -   y number circle center y
+    -   r number radius
+    -   angle1 number start angle
+    -   angle2 number end angle
+
+ Screen.circle (x, y, r)
+
+    draw circle.
+
+    Parameters:
+
+    -   x number origin x
+    -   y number origin y
+    -   r number radius
+
+ Screen.rect (x, y, w, h)
+
+    draw rectangle.
+
+    Parameters:
+
+    -   x number x position
+    -   y number y position
+    -   w number width
+    -   h number height
+
+ Screen.curve (x1, y1, x2, y2, x3, y3)
+
+    draw curve (cubic Bézier spline).
+
+    Parameters:
+
+    -   x1 number handle 1 x
+    -   y1 number handle 1 y
+    -   x2 number handle 2 x
+    -   y2 number handle 2 y
+    -   x3 number destination x
+    -   y3 number destination y
+
+ Screen.curve_rel (x1, y1, x2, y2, x3, y3)
+
+    draw curve (cubic Bézier spline) relative coordinates.
+
+    Parameters:
+
+    -   x1 number handle 1 x
+    -   y1 number handle 1 y
+    -   x2 number handle 2 x
+    -   y2 number handle 2 y
+    -   x3 number relative destination x
+    -   y3 number relative destination y
+
+ Screen.close ()
+    close current path.
+
+ Screen.stroke ()
+    stroke current path. uses currently selected color. after this call
+    the current path will be cleared, so the 'relative' functions
+    (`move_rel`, `line_rel` and `curve_rel`) won't work - use their
+    absolute alternatives instead.
+
+ Screen.fill ()
+    fill current path. uses currently selected color. after this call
+    the current path will be cleared, so the 'relative' functions
+    (`move_rel`, `line_rel` and `curve_rel`) won't work - use their
+    absolute alternatives instead.
+
+ Screen.text (str)
+
+    draw text (left aligned). uses currently selected font.
+
+    Parameters:
+
+    -   str string : text to write
+
+ Screen.text_rotate (x, y, str, degrees)
+
+    draw text (left aligned) and rotated. uses currently selected font.
+
+    Parameters:
+
+    -   x number x position
+    -   y number y position
+    -   str string : text to write
+    -   degrees number : degrees to rotate
+
+ Screen.text_right (str)
+
+    draw text, right aligned. uses currently selected font
+
+    Parameters:
+
+    -   str string : text to write.
+
+ Screen.text_center (str)
+
+    draw text, center aligned. uses currently selected font.
+
+    Parameters:
+
+    -   str string : text to write
+
+ Screen.text_center_rotate (x, y, str, degrees)
+
+    draw text, center aligned, and rotated. uses currently selected
+    font.
+
+    Parameters:
+
+    -   x number x position
+    -   y number y position
+    -   str string : text to write
+    -   degrees number : degress to rotate
+
+ Screen.text_extents (str)
+
+    calculate width of text. uses currently selected font.
+
+    Parameters:
+
+    -   str string : text to calculate width of
+
+ Screen.font_face (index)
+
+    select font face.
+
+    Parameters:
+
+    -   index font face (see list)
+
+        1 04B_03 (norns default) 2 ALEPH 3 Roboto Thin 4 Roboto Light 5
+        Roboto Regular 6 Roboto Medium 7 Roboto Bold 8 Roboto Black 9
+        Roboto Thin Italic 10 Roboto Light Italic 11 Roboto Italic 12
+        Roboto Medium Italic 13 Roboto Bold Italic 14 Roboto Black
+        Italic 15 VeraBd 16 VeraBI 17 VeraIt 18 VeraMoBd 19 VeraMoBI 20
+        VeraMoIt 21 VeraMono 22 VeraSeBd 23 VeraSe 24 Vera 25
+        bmp/tom-thumb 26 creep 27 ctrld-fixed-10b 28 ctrld-fixed-10r 29
+        ctrld-fixed-13b 30 ctrld-fixed-13b-i 31 ctrld-fixed-13r 32
+        ctrld-fixed-13r-i 33 ctrld-fixed-16b 34 ctrld-fixed-16b-i 35
+        ctrld-fixed-16r 36 ctrld-fixed-16r-i 37 scientifica-11 38
+        scientificaBold-11 39 scientificaItalic-11 40 ter-u12b 41
+        ter-u12n 42 ter-u14b 43 ter-u14n 44 ter-u14v 45 ter-u16b 46
+        ter-u16n 47 ter-u16v 48 ter-u18b 49 ter-u18n 50 ter-u20b 51
+        ter-u20n 52 ter-u22b 53 ter-u22n 54 ter-u24b 55 ter-u24n 56
+        ter-u28b 57 ter-u28n 58 ter-u32b 59 ter-u32n 60
+        unscii-16-full.pcf 61 unscii-16.pcf 62 unscii-8-alt.pcf 63
+        unscii-8-fantasy.pcf 64 unscii-8-mcr.pcf 65 unscii-8.pcf 66
+        unscii-8-tall.pcf 67 unscii-8-thin.pcf
+
+ Screen.font_size (size)
+
+    set font size.
+
+    Parameters:
+
+    -   size number in pixel height.
+
+ Screen.pixel (x, y)
+
+    draw single pixel (requires integer x/y, fill afterwards).
+
+    Parameters:
+
+    -   x number position
+    -   y number position
+
+ Screen.display_png (filename, x, y)
+
+    display png
+
+    Parameters:
+
+    -   filename
+    -   x number x position
+    -   y number y position
+
+ Screen.load_png (filename)
+
+    load png into an image buffer
+
+    Parameters:
+
+    -   filename
+
+ Screen.create_image (width, height)
+
+    create an image buffer
+
+    Parameters:
+
+    -   width number image witdth
+    -   height number image height
+
+ Screen.display_image (image, x, y)
+
+    display image buffer
+
+    Parameters:
+
+    -   image
+    -   x number x position
+    -   y number y position
+
+ Screen.display_image_region (image, left, top, width, height, x, y)
+
+    display sub-region image buffer
+
+    Parameters:
+
+    -   image
+    -   left number left inset within image
+    -   top number top inset within image
+    -   width number width from right within image
+    -   height number height from top within image
+    -   x number x position
+    -   y number y position
+
+ Screen.draw_to (image, func)
+
+    direct screen drawing within the provide function into the image
+    instead of the screen
+
+    Parameters:
+
+    -   image image the image to draw into
+    -   func function function called to perform drawing
+
+ Screen.peek (x, y, w, h)
+
+    get a rectangle of screen content. returned buffer contains one byte
+    (valued 0 - 15) per pixel, i.e. w * h bytes
+
+    Parameters:
+
+    -   x number x position
+    -   y number y position
+    -   w number width, default 1
+    -   h number height, default 1
+
+ Screen.poke (x, y, w, h, s)
+
+    set a rectangle of screen content. expected buffer contains one byte
+    (valued 0 - 15) per pixel, i.e. w * h bytes
+
+    Parameters:
+
+    -   x number x position
+    -   y number y position
+    -   w number width
+    -   h number height
+    -   s string screen content to set
+
+ Screen.rotate (radians)
+
+    rotate
+
+    Parameters:
+
+    -   radians number
+
+ Screen.translate (x, y)
+
+    move origin position
+
+    Parameters:
+
+    -   x number position x
+    -   y number position y
+
+ Screen.save ()
+    save
+
+ Screen.blend_mode (index)
+
+    change screen blending mode.
+
+    Parameters:
+
+    -   index number/string blending mode (see list), strings are
+        case-insensitive, include '_' between words
+
+        more info at https://www.cairographics.org/operators/
+
+        there are other operators available, see the above link or use
+        tab.print(screen.BLEND_MODES) in the REPL for the full list.
+
+        0 Over (default)
+
+        1 XOR: clears any overlapping pixels.
+
+        2 Add: adds together the alpha (brightness) of overlapping
+        pixels.
+
+        3 Multiply: multiplies the colors of overlapping pixels, the
+        result is always darker than the two inputs.
+
+        4 Screen: the colors of overlapping pixels are complemented,
+        multiplied, then their product is complimented. the result is
+        always lighter than the two inputs.
+
+        5 Overlay: multiplies colors if destination pixel level is >= 8,
+        screens colors if destination pixel level is < 8.
+
+        6 Darken: keeps the darker value of overlapping pixels.
+
+        7 Lighten: keeps the lighter value of overlapping pixels.
+
+        8 Color_Dodge: brightens pixels being drawn over.
+
+        9 Color_Burn: darkens pixels being drawn over.
+
+        10 Hard_Light: multiplies colors if source pixel level is >= 8,
+        screens colors if source pixel level is < 8.
+
+        11 Soft_Light: uses Darken or Lighten depending on the color of
+        the source pixel.
+
+        12 Difference: the result is the absolute value of the
+        difference of the destination and source pixels.
+
+        13 Exclusion: similar to Difference, but has lower contrast.
+
+    Usage:
+
+    -   -- number vs. string input
+            screen.blend_mode(0)
+            screen.blend_mode('over')
+
+    -   -- case-insensitivity
+            screen.blend_mode('hard_light')
+            screen.blend_mode('hArD_lIgHt')
+            screen.blend_mode('HARD_LIGHT')
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:

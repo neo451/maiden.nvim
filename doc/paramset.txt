@@ -1,0 +1,361 @@
+paramset
+Module paramset
+
+ParamSet class
+
+Functions
+
+  -------------------------------------------------------------------- --------------------------------------------------
+  ParamSet.new (id, name)                                              constructor.
+  ParamSet:add (args)                                                  add generic parameter.
+  ParamSet:add_number (id, name, min, max, default, formatter, wrap)   add number.
+  ParamSet:add_option (id, name, options, default)                     add option.
+  ParamSet:add_control (id, name, controlspec, formatter)              add control.
+  ParamSet:add_file (id, name, path)                                   add file.
+  ParamSet:add_text (id, name, txt)                                    add text.
+  ParamSet:add_taper (id, name, min, max, default, k, units)           add taper.
+  ParamSet:add_trigger (id, name)                                      add trigger.
+  ParamSet:add_binary (id, name, behavior, default)                    add binary
+  ParamSet:add_separator (id, name)                                    add separator.
+  ParamSet:add_group (id, name, n)                                     add parameter group.
+  ParamSet:print ()                                                    print.
+  ParamSet:list ()                                                     list.
+  ParamSet:get_id (index)                                              id.
+  ParamSet:string (index)                                              string.
+  ParamSet:set (index, v, silent)                                      set.
+  ParamSet:set_raw (index, v, silent)                                  set_raw (for control types only).
+  ParamSet:get (index)                                                 get.
+  ParamSet:get_raw (index)                                             get_raw (for control types only).
+  ParamSet:delta (index, d)                                            delta.
+  ParamSet:set_action (index, func)                                    set action.
+  ParamSet:set_save (index, state)                                     set save state.
+  ParamSet:t (index)                                                   get type.
+  ParamSet:get_range (index)                                           get range
+  ParamSet:get_allow_pmap (index)                                      get whether or not parameter should be pmap'able
+  ParamSet:hide (index)                                                set visibility to hidden.
+  ParamSet:show (index)                                                set visiblility to show.
+  ParamSet:visible (index)                                             get visibility.
+  ParamSet:write (filename, name)                                      write to disk.
+  ParamSet:read (filename, silent)                                     read from disk.
+  ParamSet:delete (filename, name)                                     delete from disk.
+  ParamSet:default ()                                                  read default pset if present.
+  ParamSet:bang ()                                                     bang all params.
+  ParamSet:clear ()                                                    clear.
+  -------------------------------------------------------------------- --------------------------------------------------
+
+Functions
+
+ ParamSet.new (id, name)
+
+    constructor.
+
+    Parameters:
+
+    -   id string
+    -   name string
+
+ ParamSet:add (args)
+
+    add generic parameter. helper function to add param to paramset two
+    uses: - pass "param" table with optional "action" function - pass
+    keyed table to generate "param" table. required keys are "type" and
+    "id"
+
+    Parameters:
+
+    -   args
+
+ ParamSet:add_number (id, name, min, max, default, formatter, wrap)
+
+    add number.
+
+    Parameters:
+
+    -   id string identifier slug (no spaces)
+    -   name string user-facing name (can contain spaces)
+    -   min number minimum value
+    -   max number maximum value
+    -   default number default / initial value
+    -   formatter function function accepting a value and returning a
+        string
+    -   wrap boolean if true, value wraps on delta; otherwise saturates
+
+ ParamSet:add_option (id, name, options, default)
+
+    add option.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+    -   options
+    -   default
+
+ ParamSet:add_control (id, name, controlspec, formatter)
+
+    add control.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+    -   controlspec controlspec
+    -   formatter
+
+ ParamSet:add_file (id, name, path)
+
+    add file.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+    -   path string
+
+ ParamSet:add_text (id, name, txt)
+
+    add text.
+
+    Parameters:
+
+    -   id
+    -   name
+    -   txt
+
+ ParamSet:add_taper (id, name, min, max, default, k, units)
+
+    add taper.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+    -   min number
+    -   max number
+    -   default
+    -   k number
+    -   units string
+
+ ParamSet:add_trigger (id, name)
+
+    add trigger.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+
+ ParamSet:add_binary (id, name, behavior, default)
+
+    add binary
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+    -   behavior string
+    -   default number
+
+ ParamSet:add_separator (id, name)
+
+    add separator. id and name are optional. if neither id or name are
+    provided, separator will be named 'separator' and will not have a
+    unique parameter index. separators which have their own parameter
+    index can be hidden / shown.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+
+ ParamSet:add_group (id, name, n)
+
+    add parameter group. groups cannot be nested, i.e. a group cannot be
+    made within a group. id and name are optional. if neither id or name
+    are provided, group will be named 'group' and will not have a unique
+    parameter index. groups which have their own parameter index can be
+    hidden / shown.
+
+    Parameters:
+
+    -   id string (no spaces)
+    -   name string (can contain spaces)
+    -   n int
+
+ ParamSet:print ()
+    print.
+
+ ParamSet:list ()
+    list. lists param id's
+
+ ParamSet:get_id (index)
+
+    id.
+
+    Parameters:
+
+    -   index number
+
+ ParamSet:string (index)
+
+    string.
+
+    Parameters:
+
+    -   index
+
+ ParamSet:set (index, v, silent)
+
+    set.
+
+    Parameters:
+
+    -   index
+    -   v value
+    -   silent boolean
+
+ ParamSet:set_raw (index, v, silent)
+
+    set_raw (for control types only).
+
+    Parameters:
+
+    -   index
+    -   v value
+    -   silent boolean
+
+ ParamSet:get (index)
+
+    get.
+
+    Parameters:
+
+    -   index
+
+ ParamSet:get_raw (index)
+
+    get_raw (for control types only).
+
+    Parameters:
+
+    -   index
+
+ ParamSet:delta (index, d)
+
+    delta.
+
+    Parameters:
+
+    -   index
+    -   d number delta
+
+ ParamSet:set_action (index, func)
+
+    set action.
+
+    Parameters:
+
+    -   index
+    -   func function set the action for this index
+
+ ParamSet:set_save (index, state)
+
+    set save state.
+
+    Parameters:
+
+    -   index
+    -   state set the save state for this index
+
+ ParamSet:t (index)
+
+    get type.
+
+    Parameters:
+
+    -   index
+
+ ParamSet:get_range (index)
+
+    get range
+
+    Parameters:
+
+    -   index
+
+ ParamSet:get_allow_pmap (index)
+
+    get whether or not parameter should be pmap'able
+
+    Parameters:
+
+    -   index
+
+ ParamSet:hide (index)
+
+    set visibility to hidden.
+
+    Parameters:
+
+    -   index
+
+ ParamSet:show (index)
+
+    set visiblility to show.
+
+    Parameters:
+
+    -   index
+
+ ParamSet:visible (index)
+
+    get visibility. parameters are visible by default.
+
+    Parameters:
+
+    -   index
+
+ ParamSet:write (filename, name)
+
+    write to disk.
+
+    Parameters:
+
+    -   filename either an absolute path, a number (to write
+        [scriptname]-[number].pset to local data folder) or nil (to
+        write default [scriptname].pset to local data folder)
+    -   name string
+
+ ParamSet:read (filename, silent)
+
+    read from disk.
+
+    Parameters:
+
+    -   filename string either an absolute path, number (to read
+        [scriptname]-[number].pset from local data folder) or nil (to
+        read pset number specified by pset-last.txt in the data folder)
+    -   silent boolean if true, do not trigger parameter actions
+
+ ParamSet:delete (filename, name)
+
+    delete from disk.
+
+    Parameters:
+
+    -   filename either an absolute path, a number (for
+        [scriptname]-[number].pset in local data folder) or nil (for
+        default [scriptname].pset in local data folder)
+    -   name string
+
+ ParamSet:default ()
+    read default pset if present.
+
+ ParamSet:bang ()
+    bang all params.
+
+ ParamSet:clear ()
+    clear.
+
+generated by LDoc 1.4.6 Last updated 2023-03-17 18:54:24
+vim:tw=78:ts=8:ft=help:norl:
