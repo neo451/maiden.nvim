@@ -17,7 +17,7 @@ M.setup = function(opts)
 end
 
 function M.sync()
-	vim.fn.input("Enter norns address: ", addr)
+	local addr = vim.fn.input("Enter norns address: ")
 	if addr == "" then
 		addr = M.defaults.addr
 	end
@@ -71,25 +71,111 @@ end
 
 -- TODO: make a user command
 function M.reload_script()
-	M.send_oneoff("norns.script.load(norns.state.script)")
+  -- M.send_oneoff("script.run()")
+	-- M.send_oneoff("script.load(norns.state.script)")
 end
 
--- HACK: same for project manager UNINSTALL(U)
--- HACK: MAKE KEYMAPS TO INSTALL(I), VIEW NORNS COMMITY(N)
+M.reload_script()
+
 -- TODO: MAKE this more generic to handle project and catalog
 -- TODO: LOOK HIGHTLIGHT STUFF TO DIFFERENCIATE PROJECT AND CATALOG
 
 local get_script = function()
 	local line = vim.api.nvim_get_current_line()
+	local match = line:match("%S+%s(%S+)")
+	print(match)
 	local res = {}
 	for i, v in ipairs(catalog) do
-		if line == v["project_name"] then
+		if match == v["project_name"] then
 			res[1], res[2] = v["project_url"], v["documentation_url"]
 		end
 	end
-	return res[1], res[2], line
+	return res[1], res[2], match
 end
 
+local keymaps = {
+	["<leader>i"] = ":lua require'maiden'.install_from_line()<cr>",
+	["<leader>u"] = ":lua require'maiden'.uninstall_form_line()<cr>",
+	["<leader>d"] = ":lua require'maiden'.open_documentation_url()<cr>",
+	["<leader>p"] = ":lua require'maiden'.open_project_url()<cr>",
+}
+-- TODO: COMPARE WITH PROJECT LIST AND ADD AVILABLE TAGS AND INSTALLED
+function M.show_scripts()
+	local buf = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
+	local width = 120
+	local height = 20
+	vim.api.nvim_open_win(buf, true, {
+		relative = "editor",
+		width = width,
+		height = height,
+		row = math.floor(vim.o.lines / 2 - height / 2),
+		col = math.floor(vim.o.columns / 2 - width / 2),
+		focusable = true,
+		style = "minimal",
+		border = "double",
+	})
+	for _, v in ipairs(catalog) do
+		local line = "# " .. v.project_name
+		local desc = v.description
+		if v.tags ~= nil then
+			desc = "* " .. desc .. " | " .. table.concat(v["tags"], ", ")
+		end
+		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line, desc })
+	end
+	stackmap.push("maiden", "n", keymaps)
+end
+
+function M.install(script)
+	Job:new({
+		command = "ssh",
+		args = {
+			"we@192.168.43.179",
+			"maiden/maiden project install " .. script,
+		},
+		on_exit = function(_, exit_code)
+			if exit_code ~= 0 then
+				print("Error executing the command. Error code:", exit_code)
+			else
+				print("installed")
+			end
+		end,
+	}):start()
+end
+
+local function uninstall(script)
+	Job:new({
+		command = "ssh",
+		args = {
+			"we@192.168.43.179",
+			"maiden/maiden project remove " .. script,
+		},
+		on_exit = function(_, exit_code)
+			if exit_code ~= 0 then
+				print("Error executing the command. Error code:", exit_code)
+			else
+				print("uninstalled")
+			end
+		end,
+	}):start()
+end
+
+M.install_from_line = function()
+	local _, _, line = get_script()
+	install(line)
+end
+
+M.uninstall = function()
+	local script = vim.fn.input("Enter script name: ")
+	uninstall(script)
+end
+
+M.uninstall_form_line = function()
+	local _, _, line = get_script()
+	uninstall(line)
+end
+
+-- macos: just open
 M.open_documentation_url = function()
 	local _, url = get_script()
 	Job:new({
@@ -104,94 +190,6 @@ M.open_project_url = function()
 		command = "xdg-open",
 		args = { url },
 	}):start()
-end
-
-
-
-local keymaps = {
-	["<leader>i"] = ":lua require'maiden'.install_from_line()<cr>",
-	["<leader>u"] = ":lua require'maiden'.uninstall_form_line()<cr>",
-	["<leader>d"] = ":lua require'maiden'.open_documentation_url()<cr>",
-	["<leader>p"] = ":lua require'maiden'.open_project_url()<cr>",
-}
-
-local function show_scripts()
-	local buf = vim.api.nvim_create_buf(false, true)
-	local width = 120
-	local height = 20
-	vim.api.nvim_open_win(buf, true, {
-		relative = "editor",
-		width = width,
-		height = height,
-		row = math.floor(vim.o.lines / 2 - height / 2),
-		col = math.floor(vim.o.columns / 2 - width / 2),
-		focusable = true,
-		style = "minimal",
-		border = "double",
-	})
-	for i, v in ipairs(catalog) do
-		local line = v.project_name
-		local desc = v.description
-		if v.tags ~= nil then
-			desc = desc .. " | " .. table.concat(v["tags"], ", ")
-		end
-		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line, desc })
-	end
-	stackmap.push("maiden", "n", keymaps)
-end
-show_scripts()
-
-local function install(script)
-	Job:new({
-		command = "ssh",
-		args = {
-			"we@192.168.43.179",
-			"maiden/maiden project install " .. script,
-		},
-		on_exit = function(_, exit_code)
-			if exit_code ~= 0 then
-				print("Error executing the command. Error code:", exit_code)
-      else
-        print("installed")
-			end
-		end,
-	}):start()
-end
-
-function M.install()
-  local script = vim.fn.input("Enter script name: ")
-  install(script)
-end
-
-M.install_from_line = function ()
-  local line = vim.api.nvim_get_current_line()
-  print(line)
-  install(line)
-end
-
-local function uninstall(script)
-	Job:new({
-		command = "ssh",
-		args = {
-			"we@192.168.43.179",
-			"maiden/maiden project remove " .. script,
-		},
-		on_exit = function(_, exit_code)
-			if exit_code ~= 0 then
-				print("Error executing the command. Error code:", exit_code)
-			end
-		end,
-	}):start()
-end
-
-M.uninstall = function ()
-	local script = vim.fn.input("Enter script name: ")
-  uninstall(script)
-end
-
-M.uninstall_form_line = function()
-  local line = vim.api.nvim_get_current_line()
-  uninstall(line)
 end
 
 return M
