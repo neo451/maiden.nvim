@@ -1,6 +1,6 @@
 local M = {}
 M.defaults = {
-	dir = "/home/n451/snorns",
+	dir = "/home/n451/remote-norns",
 	addr = "192.168.43.179",
 }
 local websocket_client = require("ws.websocket_client")
@@ -85,7 +85,7 @@ local get_script = function()
 	local match = line:match("%S+%s(%S+)")
 	print(match)
 	local res = {}
-	for i, v in ipairs(catalog) do
+	for _, v in ipairs(catalog) do
 		if match == v["project_name"] then
 			res[1], res[2] = v["project_url"], v["documentation_url"]
 		end
@@ -162,7 +162,7 @@ end
 
 M.install_from_line = function()
 	local _, _, line = get_script()
-	install(line)
+	M.install(line)
 end
 
 M.uninstall = function()
