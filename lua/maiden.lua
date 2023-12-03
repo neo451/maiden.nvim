@@ -71,7 +71,7 @@ end
 
 -- TODO: make a user command
 function M.reload_script()
-  -- M.send_oneoff("script.run()")
+	-- M.send_oneoff("script.run()")
 	-- M.send_oneoff("script.load(norns.state.script)")
 end
 
