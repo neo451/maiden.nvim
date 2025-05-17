@@ -3,7 +3,7 @@ local maiden = require("maiden")
 local host = maiden.defaults.addr
 local M = {}
 local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
-local float = require("float")
+-- local float = require("float")
 
 function M.repl()
 	local buf = float.Create({ width = 45, height = 10, buflisted = true, title = "floattyyy" })
@@ -46,6 +46,8 @@ function M.send_oneoff(command)
 	end)
 	ws.connect()
 end
+
 M.send_oneoff("print('hello')")
 -- TODO: MAKE A PULL REQUEST OR FORK A WORKING VERSION WITH THE SUBPROTOCAL SUPPORT
+
 return M

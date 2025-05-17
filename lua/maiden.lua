@@ -6,8 +6,7 @@ M.defaults = {
 }
 
 local websocket_client = require("ws.websocket_client")
-local host = M.defaults.addr
-local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
+local ws = websocket_client("ws://" .. M.defaults.addr .. ":5555/", "bus.sp.nanomsg.org") -- TODO: user config
 local catalog = require("maiden.catalog")
 
 -- TODO: USE NATIVE REPL TO STOP etc

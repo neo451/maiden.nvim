@@ -21,17 +21,10 @@ if not vim.uv.fs_stat(data_dir) then
 end
 
 local function fetch()
-	local cmds = {
-		"curl",
-		url,
-		"-o",
-		"community.json",
-	}
+	local cmds = { "curl", url, "-o", "community.json" }
 	vim.system(
 		cmds,
-		{
-			cwd = data_dir,
-		},
+		{ cwd = data_dir },
 		vim.schedule_wrap(function(obj)
 			if obj.code == 0 then
 				vim.notify("Successfully updated community catalog", vim.log.levels.INFO)
@@ -42,7 +35,7 @@ local function fetch()
 	)
 end
 
-function M.load()
+local function load()
 	local catalog_path = vim.fs.joinpath(data_dir, "community.json")
 	local str = util.read_file(catalog_path)
 	assert(str)
@@ -51,8 +44,9 @@ end
 
 function M.update()
 	fetch()
+	M.prjects = load()
 end
 
-M.prjects = M.load()
+M.prjects = load()
 
 return M
