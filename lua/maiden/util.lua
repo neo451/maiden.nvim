@@ -27,4 +27,6 @@ M.read_file = function(path)
 	return ret
 end
 
+M.notify = vim.schedule_wrap(vim.notify)
+
 return M

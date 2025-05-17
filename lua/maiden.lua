@@ -1,24 +1,21 @@
 local M = {}
 
-M.defaults = {
-	dir = "/home/n451/remote-norns",
-	addr = "192.168.43.179",
-}
-
-local websocket_client = require("ws.websocket_client")
-local ws = websocket_client("ws://" .. M.defaults.addr .. ":5555/", "bus.sp.nanomsg.org") -- TODO: user config
 local catalog = require("maiden.catalog")
+local config = require("maiden.config")
+local Norns = require("maiden.norns")
+local util = require("maiden.util")
 
 -- TODO: USE NATIVE REPL TO STOP etc
 -- TODO: TRY NETMAN OR COMMIT TO SSHFS?
-M.setup = function(opts)
-	M.defaults = vim.tbl_extend("force", M.defaults, opts or {})
+function M.setup(opts)
+	-- M.defaults = vim.tbl_extend("force", M.defaults, opts or {})
 end
 
-function M.sync()
-	local addr = vim.fn.input("Enter norns address: ")
-	if addr == "" then
-		addr = M.defaults.addr
+local mount_dir = vim.fn.tempname()
+
+local function mount(addr)
+	if not vim.uv.fs_stat(mount_dir) then
+		vim.fn.mkdir(mount_dir, "-p")
 	end
 
 	local cmds = {
@@ -26,48 +23,55 @@ function M.sync()
 		"-o",
 		"default_permissions",
 		"we@" .. addr .. ":/home/we/dust/code",
-		M.defaults.dir,
+		mount_dir,
 	}
 
 	vim.system(cmds, {}, function(obj)
 		local ok = obj.code == 0
 		if ok then
-			vim.notify("Synced to norns", vim.log.levels.INFO)
+			util.notify("Synced to norns", vim.log.levels.INFO)
 		else
-			vim.notify("Failed to sync to norns", vim.log.levels.ERROR)
+			util.notify("Failed to sync to norns " .. obj.stderr, vim.log.levels.ERROR)
 		end
 	end)
 end
 
-function M.unsync()
+function M.mount()
+	vim.ui.input({
+		default = config.addr,
+		prompt = "Enter norns address: ",
+	}, function(input)
+		if not input or input == "" then
+			util.notify("Aborted", 3)
+			return
+		end
+		mount(input)
+	end)
+end
+
+function M.unmount()
 	local cmds = {
 		"fusermount",
 		"-zu",
-		M.defaults.dir,
+		mount_dir,
 	}
 
 	vim.system(cmds, {}, function(obj)
 		local ok = obj.code == 0
 		if ok then
-			vim.notify("Unsynced from norns", vim.log.levels.INFO)
+			util.notify("Unsynced from norns", vim.log.levels.INFO)
 		else
-			vim.notify("Failed to unsync from norns", vim.log.levels.ERROR)
+			util.notify("Failed to unsync from norns " .. obj.stderr, vim.log.levels.ERROR)
 		end
 	end)
 end
 
-function M.send_oneoff(command)
-	local _msg = ""
-	ws.on_open(function()
-		ws.send(command .. "\n")
-		print("connected")
-	end)
-	ws.on_message(function(msg)
-		_msg = msg:to_string()
-		print(_msg)
-	end)
-	ws.connect()
-end
+vim.api.nvim_create_autocmd("VimLeavePre", {
+	pattern = "*",
+	callback = function()
+		M.unmount()
+	end,
+})
 
 function M.load_script()
 	local line = vim.api.nvim_get_current_line()
@@ -80,12 +84,7 @@ function M.reload_script()
 	-- M.send_oneoff("script.load(norns.state.script)")
 end
 
-M.reload_script()
-
--- TODO: MAKE this more generic to handle project and catalog
-
 -- TODO: ts get heading above
-
 local get_project = function()
 	local line = vim.api.nvim_get_current_line()
 	local match = line:match("%S+%s(%S+)")
@@ -105,9 +104,9 @@ local function install(script)
 	vim.system(cmds, {}, function(obj)
 		local exit_code = obj.code
 		if exit_code ~= 0 then
-			vim.notify("Error executing the command. Error code: " .. exit_code, vim.log.levels.ERROR)
+			util.notify("Error executing the command. Error code: " .. exit_code, vim.log.levels.ERROR)
 		else
-			vim.notify(script .. " installed", vim.log.levels.ERROR)
+			util.notify(script .. " installed", vim.log.levels.ERROR)
 		end
 	end)
 end
@@ -123,9 +122,9 @@ local function uninstall(script)
 	vim.system(cmds, {}, function(obj)
 		local exit_code = obj.code
 		if exit_code ~= 0 then
-			vim.notify("Error executing the command. Error code: " .. exit_code, vim.log.levels.ERROR)
+			util.notify("Error executing the command. Error code: " .. exit_code, vim.log.levels.ERROR)
 		else
-			vim.notify(script .. " uninstalled", vim.log.levels.ERROR)
+			util.notify(script .. " uninstalled", vim.log.levels.ERROR)
 		end
 	end)
 end
@@ -133,7 +132,7 @@ end
 M.install = function()
 	vim.ui.input({ prompt = "script to install: " }, function(input)
 		if not input then
-			vim.notify("Aborted", 3)
+			util.notify("Aborted", 3)
 			return
 		end
 		install(input)
@@ -143,7 +142,7 @@ end
 M.uninstall = function()
 	vim.ui.input({ prompt = "script to uninstall: " }, function(input)
 		if not input then
-			vim.notify("Aborted", 3)
+			util.notify("Aborted", 3)
 			return
 		end
 		uninstall(input)
@@ -173,7 +172,7 @@ local keymaps = {
 }
 
 -- TODO: COMPARE WITH PROJECT LIST AND ADD AVILABLE TAGS AND INSTALLED
-function M.show_scripts()
+function M.menu()
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
 	local width = 120
@@ -200,6 +199,14 @@ function M.show_scripts()
 	for lhs, rhs in pairs(keymaps) do
 		vim.keymap.set("n", lhs, rhs, { buffer = buf })
 	end
+end
+
+function M.open()
+	vim.cmd.edit(mount_dir)
+end
+
+function M.quickfix()
+	Norns:qf()
 end
 
 return M

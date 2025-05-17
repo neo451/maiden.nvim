@@ -100,6 +100,10 @@ Client.__index = Client
 -- and path. The port argument is optional with a default of 80. The path
 -- argument is optional with a default of "/". The protocols argument is
 -- optional and defaults to none.
+---@param host string addr to your norns
+---@param port integer port of your norns, usually 5555
+---@param path string TOOD: default / ?
+---@param protocols string[] TOOD: default / ?
 function M.new(host, port, path, protocols)
 	local c = setmetatable({
 		_sock = uv.new_tcp(),
