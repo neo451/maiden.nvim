@@ -49,9 +49,5 @@ function M.qf()
 end
 
 local norns = M.new()
---
--- vim.defer_fn(function()
--- 	norns:send([[print('hi!')]])
--- end, 2000)
 
 return M

@@ -10,9 +10,11 @@ WIP
 
 - `Maiden quickfix` to see the errors in qflist
 - `Maiden menu` to see all community scripts
+- `Maiden broswser` to open this file in browser
 
 ## to do
 
+- [ ] LSPize
 - [x] access filesystem and file edit
 - [x] split window remote repl
 - [x] live reload on save

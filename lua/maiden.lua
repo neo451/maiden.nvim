@@ -1,4 +1,5 @@
 local M = {}
+local cmds = {}
 
 local catalog = require("maiden.catalog")
 local config = require("maiden.config")
@@ -8,7 +9,14 @@ local util = require("maiden.util")
 -- TODO: USE NATIVE REPL TO STOP etc
 -- TODO: TRY NETMAN OR COMMIT TO SSHFS?
 function M.setup(opts)
-	-- M.defaults = vim.tbl_extend("force", M.defaults, opts or {})
+	vim.api.nvim_create_user_command("Maiden", function()
+		vim.ui.select(vim.tbl_keys(cmds), {}, function(choice)
+			if not choice then
+				return
+			end
+			cmds[choice]()
+		end)
+	end, {})
 end
 
 local mount_dir = vim.fn.tempname()
@@ -36,7 +44,7 @@ local function mount(addr)
 	end)
 end
 
-function M.mount()
+function cmds.mount()
 	vim.ui.input({
 		default = config.addr,
 		prompt = "Enter norns address: ",
@@ -49,7 +57,32 @@ function M.mount()
 	end)
 end
 
-function M.unmount()
+---Check if in norns's fs
+---@return boolean
+---@return string?
+local function in_fs()
+	local buf = vim.api.nvim_get_current_buf()
+	local file = vim.api.nvim_buf_get_name(buf)
+
+	if vim.startswith(file, vim.fs.normalize(mount_dir)) then
+		return true, file
+	end
+	return false
+end
+
+function cmds.broswer()
+	local is_fs, fp = in_fs()
+
+	if is_fs then
+		local rel_path = fp:gsub(vim.pesc(mount_dir), "")
+		local prefix = "/maiden/#edit/dust/code" .. rel_path -- TODO： other dir like audio and data
+		vim.ui.open("http://" .. config.addr .. prefix)
+	else
+		vim.ui.open("http://" .. config.addr)
+	end
+end
+
+function cmds.unmount()
 	local cmds = {
 		"fusermount",
 		"-zu",
@@ -69,17 +102,18 @@ end
 vim.api.nvim_create_autocmd("VimLeavePre", {
 	pattern = "*",
 	callback = function()
-		M.unmount()
+		cmds.unmount()
 	end,
 })
 
-function M.load_script()
+-- TODO:
+local function load_script()
 	local line = vim.api.nvim_get_current_line()
-	M.send_oneoff(line)
+	cmds.send_oneoff(line)
 end
 
 -- TODO: make a user command
-function M.reload_script()
+local function reload_script()
 	-- M.send_oneoff("script.run()")
 	-- M.send_oneoff("script.load(norns.state.script)")
 end
@@ -129,7 +163,7 @@ local function uninstall(script)
 	end)
 end
 
-M.install = function()
+cmds.install = function()
 	vim.ui.input({ prompt = "script to install: " }, function(input)
 		if not input then
 			util.notify("Aborted", 3)
@@ -139,7 +173,7 @@ M.install = function()
 	end)
 end
 
-M.uninstall = function()
+cmds.uninstall = function()
 	vim.ui.input({ prompt = "script to uninstall: " }, function(input)
 		if not input then
 			util.notify("Aborted", 3)
@@ -172,7 +206,7 @@ local keymaps = {
 }
 
 -- TODO: COMPARE WITH PROJECT LIST AND ADD AVILABLE TAGS AND INSTALLED
-function M.menu()
+function cmds.menu()
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
 	local width = 120
@@ -201,11 +235,11 @@ function M.menu()
 	end
 end
 
-function M.open()
+function cmds.open()
 	vim.cmd.edit(mount_dir)
 end
 
-function M.quickfix()
+function cmds.quickfix()
 	Norns:qf()
 end
 
