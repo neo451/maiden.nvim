@@ -3,11 +3,11 @@ local catalog = require("catalog")
 local items = {}
 
 function source.get_trigger_characters()
-  return {}
+	return {}
 end
 
 function source.get_keyword_pattern()
-  return [[\(:MaidenInstall\)\@<=\S\+\s*]]
+	return [[\(:MaidenInstall\)\@<=\S\+\s*]]
 end
 
 for _, v in pairs(catalog) do
@@ -39,8 +39,8 @@ function source:get_debug_name()
 	return "norns"
 end
 
-
 function source:complete(_, callback)
 	callback(items)
 end
+
 return source

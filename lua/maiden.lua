@@ -8,7 +8,7 @@ M.defaults = {
 local websocket_client = require("ws.websocket_client")
 local host = M.defaults.addr
 local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
-local catalog = require("catalog")
+local catalog = require("maiden.catalog")
 
 -- TODO: USE NATIVE REPL TO STOP etc
 -- TODO: TRY NETMAN OR COMMIT TO SSHFS?
@@ -84,23 +84,19 @@ end
 M.reload_script()
 
 -- TODO: MAKE this more generic to handle project and catalog
--- TODO: LOOK HIGHTLIGHT STUFF TO DIFFERENCIATE PROJECT AND CATALOG
 
 -- TODO: ts get heading above
-local get_script = function()
+
+local get_project = function()
 	local line = vim.api.nvim_get_current_line()
 	local match = line:match("%S+%s(%S+)")
-	local res = {}
-	for _, v in ipairs(catalog) do
-		if match == v["project_name"] then
-			res[1], res[2] = v["project_url"], v["documentation_url"]
-		end
-	end
-	return res[1], res[2], match
+	return vim.iter(catalog.prjects):find(function(project)
+		return project.project_name == match
+	end)
 end
 
 ---@param script string
-function M.install(script)
+local function install(script)
 	local cmds = {
 		"ssh",
 		"we@192.168.43.179",
@@ -135,36 +131,46 @@ local function uninstall(script)
 	end)
 end
 
-M.install_from_line = function()
-	local _, _, line = get_script()
-	M.install(line)
+M.install = function()
+	vim.ui.input({ prompt = "script to install: " }, function(input)
+		if not input then
+			vim.notify("Aborted", 3)
+			return
+		end
+		install(input)
+	end)
 end
 
 M.uninstall = function()
-	local script = vim.fn.input("Enter script name: ")
-	uninstall(script)
-end
-
-M.uninstall_form_line = function()
-	local _, _, line = get_script()
-	uninstall(line)
-end
-
-M.open_documentation_url = function()
-	local _, url = get_script()
-	vim.ui.open(url)
-end
-
-M.open_project_url = function()
-	local url = get_script()
-	vim.ui.open(url)
+	vim.ui.input({ prompt = "script to uninstall: " }, function(input)
+		if not input then
+			vim.notify("Aborted", 3)
+			return
+		end
+		uninstall(input)
+	end)
 end
 
 local keymaps = {
-	["i"] = M.install_from_line,
-	["u"] = M.uninstall_form_line,
-	["d"] = M.open_documentation_url,
-	["p"] = M.open_documentation_url,
+	["i"] = function()
+		local name = get_project().project_name
+		install(name)
+	end,
+	["u"] = function()
+		local name = get_project().project_name
+		uninstall(name)
+	end,
+	["d"] = function()
+		local url = get_project().documentation_url
+		vim.ui.open(url)
+	end,
+	["p"] = function()
+		local url = get_project().project_url
+		vim.ui.open(url)
+	end,
+	q = function()
+		vim.cmd.close()
+	end,
 }
 
 -- TODO: COMPARE WITH PROJECT LIST AND ADD AVILABLE TAGS AND INSTALLED
@@ -183,7 +189,7 @@ function M.show_scripts()
 		style = "minimal",
 		border = "double",
 	})
-	for _, v in ipairs(catalog) do
+	for _, v in ipairs(catalog.prjects) do
 		local line = "# " .. v.project_name
 		local desc = v.description
 		if v.tags ~= nil then
