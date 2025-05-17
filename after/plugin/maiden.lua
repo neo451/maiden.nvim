@@ -11,7 +11,7 @@ add_command("MaidenEnd", m.unsync)
 add_command("MaidenScripts", m.show_scripts)
 
 vim.api.nvim_create_user_command("MaidenInstall", function(opts)
-  m.install(opts.args)
+	m.install(opts.args)
 end, { nargs = "?" })
 
 vim.api.nvim_create_autocmd({ "BufWritePost" }, {
@@ -19,5 +19,4 @@ vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 	callback = m.load_script,
 })
 
-require('cmp').register_source('norns', require("cmp-maiden").new())
-
+-- require('cmp').register_source('norns', require("cmp-maiden").new())

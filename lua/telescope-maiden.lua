@@ -14,7 +14,7 @@ for i, v in ipairs(catalog) do
 end
 
 -- TODO: understand this to make handle the table
-function gen_from_norns_catalog(opts)
+local function gen_from_norns_catalog(opts)
 	local displayer = entry_display.create({
 		separator = " ",
 		hl_chars = { ["["] = "TelescopeBorder", ["]"] = "TelescopeBorder" },
@@ -66,5 +66,4 @@ local tele_norns = function(opts)
 end
 
 -- to execute the function
--- tele_norns(require("telescope.themes").get_ivy({}))
-tele_norns()
+tele_norns(require("telescope.themes").get_ivy({}))

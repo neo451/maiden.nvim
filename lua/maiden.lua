@@ -1,11 +1,11 @@
 local M = {}
+
 M.defaults = {
 	dir = "/home/n451/remote-norns",
 	addr = "192.168.43.179",
 }
+
 local websocket_client = require("ws.websocket_client")
-local Job = require("plenary.job")
-local stackmap = require("stackmap")
 local host = M.defaults.addr
 local ws = websocket_client("ws://" .. host .. ":5555/", "bus.sp.nanomsg.org")
 local catalog = require("catalog")
@@ -21,34 +21,40 @@ function M.sync()
 	if addr == "" then
 		addr = M.defaults.addr
 	end
-	Job:new({
-		command = "sshfs",
-		args = {
-			"-o",
-			"default_permissions",
-			"we@" .. addr .. ":/home/we/dust/code",
-			M.defaults.dir,
-		},
-		on_exit = function()
-			print("Synced!")
-		end,
-		on_stderr = function()
-			print("Error: failed to connect to norns")
-		end,
-	}):start()
+
+	local cmds = {
+		"sshfs",
+		"-o",
+		"default_permissions",
+		"we@" .. addr .. ":/home/we/dust/code",
+		M.defaults.dir,
+	}
+
+	vim.system(cmds, {}, function(obj)
+		local ok = obj.code == 0
+		if ok then
+			vim.notify("Synced to norns", vim.log.levels.INFO)
+		else
+			vim.notify("Failed to sync to norns", vim.log.levels.ERROR)
+		end
+	end)
 end
 
 function M.unsync()
-	Job:new({
-		command = "fusermount",
-		args = { "-zu", M.defaults.dir },
-		on_exit = function()
-			print("Unsynced!")
-		end,
-		on_stderr = function()
-			print("Error: failed to unsync")
-		end,
-	}):start()
+	local cmds = {
+		"fusermount",
+		"-zu",
+		M.defaults.dir,
+	}
+
+	vim.system(cmds, {}, function(obj)
+		local ok = obj.code == 0
+		if ok then
+			vim.notify("Unsynced from norns", vim.log.levels.INFO)
+		else
+			vim.notify("Failed to unsync from norns", vim.log.levels.ERROR)
+		end
+	end)
 end
 
 function M.send_oneoff(command)
@@ -80,10 +86,10 @@ M.reload_script()
 -- TODO: MAKE this more generic to handle project and catalog
 -- TODO: LOOK HIGHTLIGHT STUFF TO DIFFERENCIATE PROJECT AND CATALOG
 
+-- TODO: ts get heading above
 local get_script = function()
 	local line = vim.api.nvim_get_current_line()
 	local match = line:match("%S+%s(%S+)")
-	print(match)
 	local res = {}
 	for _, v in ipairs(catalog) do
 		if match == v["project_name"] then
@@ -93,16 +99,78 @@ local get_script = function()
 	return res[1], res[2], match
 end
 
+---@param script string
+function M.install(script)
+	local cmds = {
+		"ssh",
+		"we@192.168.43.179",
+		"maiden/maiden project install " .. script,
+	}
+
+	vim.system(cmds, {}, function(obj)
+		local exit_code = obj.code
+		if exit_code ~= 0 then
+			vim.notify("Error executing the command. Error code: " .. exit_code, vim.log.levels.ERROR)
+		else
+			vim.notify(script .. " installed", vim.log.levels.ERROR)
+		end
+	end)
+end
+
+---@param script string
+local function uninstall(script)
+	local cmds = {
+		"ssh",
+		"we@192.168.43.179",
+		"maiden/maiden project remove " .. script,
+	}
+
+	vim.system(cmds, {}, function(obj)
+		local exit_code = obj.code
+		if exit_code ~= 0 then
+			vim.notify("Error executing the command. Error code: " .. exit_code, vim.log.levels.ERROR)
+		else
+			vim.notify(script .. " uninstalled", vim.log.levels.ERROR)
+		end
+	end)
+end
+
+M.install_from_line = function()
+	local _, _, line = get_script()
+	M.install(line)
+end
+
+M.uninstall = function()
+	local script = vim.fn.input("Enter script name: ")
+	uninstall(script)
+end
+
+M.uninstall_form_line = function()
+	local _, _, line = get_script()
+	uninstall(line)
+end
+
+M.open_documentation_url = function()
+	local _, url = get_script()
+	vim.ui.open(url)
+end
+
+M.open_project_url = function()
+	local url = get_script()
+	vim.ui.open(url)
+end
+
 local keymaps = {
-	["<leader>i"] = ":lua require'maiden'.install_from_line()<cr>",
-	["<leader>u"] = ":lua require'maiden'.uninstall_form_line()<cr>",
-	["<leader>d"] = ":lua require'maiden'.open_documentation_url()<cr>",
-	["<leader>p"] = ":lua require'maiden'.open_project_url()<cr>",
+	["i"] = M.install_from_line,
+	["u"] = M.uninstall_form_line,
+	["d"] = M.open_documentation_url,
+	["p"] = M.open_documentation_url,
 }
+
 -- TODO: COMPARE WITH PROJECT LIST AND ADD AVILABLE TAGS AND INSTALLED
 function M.show_scripts()
 	local buf = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
+	vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
 	local width = 120
 	local height = 20
 	vim.api.nvim_open_win(buf, true, {
@@ -121,75 +189,12 @@ function M.show_scripts()
 		if v.tags ~= nil then
 			desc = "* " .. desc .. " | " .. table.concat(v["tags"], ", ")
 		end
-		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line, desc })
+		vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line, "", desc, "" })
 	end
-	stackmap.push("maiden", "n", keymaps)
-end
 
-function M.install(script)
-	Job:new({
-		command = "ssh",
-		args = {
-			"we@192.168.43.179",
-			"maiden/maiden project install " .. script,
-		},
-		on_exit = function(_, exit_code)
-			if exit_code ~= 0 then
-				print("Error executing the command. Error code:", exit_code)
-			else
-				print("installed")
-			end
-		end,
-	}):start()
-end
-
-local function uninstall(script)
-	Job:new({
-		command = "ssh",
-		args = {
-			"we@192.168.43.179",
-			"maiden/maiden project remove " .. script,
-		},
-		on_exit = function(_, exit_code)
-			if exit_code ~= 0 then
-				print("Error executing the command. Error code:", exit_code)
-			else
-				print("uninstalled")
-			end
-		end,
-	}):start()
-end
-
-M.install_from_line = function()
-	local _, _, line = get_script()
-	M.install(line)
-end
-
-M.uninstall = function()
-	local script = vim.fn.input("Enter script name: ")
-	uninstall(script)
-end
-
-M.uninstall_form_line = function()
-	local _, _, line = get_script()
-	uninstall(line)
-end
-
--- macos: just open
-M.open_documentation_url = function()
-	local _, url = get_script()
-	Job:new({
-		command = "xdg-open",
-		args = { url },
-	}):start()
-end
-
-M.open_project_url = function()
-	local url = get_script()
-	Job:new({
-		command = "xdg-open",
-		args = { url },
-	}):start()
+	for lhs, rhs in pairs(keymaps) do
+		vim.keymap.set("n", lhs, rhs, { buffer = buf })
+	end
 end
 
 return M
