@@ -1,22 +1,46 @@
 local M = {}
 local cmds = {}
 
+-- TODO: USE NATIVE REPL TO STOP etc
+-- TODO: TRY NETMAN OR COMMIT TO SSHFS?
 local catalog = require("maiden.catalog")
 local config = require("maiden.config")
 local Norns = require("maiden.norns")
 local util = require("maiden.util")
 
--- TODO: USE NATIVE REPL TO STOP etc
--- TODO: TRY NETMAN OR COMMIT TO SSHFS?
+---@param cmdline string
+local function cmd_completion(_, cmdline)
+	local cmd_names = vim.tbl_keys(cmds)
+	local maidenpat = "^['<,'>]*Maiden[!]?"
+	local splitcmd = vim.split(cmdline, " ", { plain = true, trimempty = true })
+	local maidencmd = splitcmd[2]
+	if cmdline:match(maidenpat .. "%s$") then
+		return cmd_names
+	end
+	if cmdline:match(maidenpat .. "%s%S+$") then
+		return vim.tbl_filter(function(s)
+			return s:sub(1, #maidencmd) == maidencmd
+		end, cmd_names)
+	end
+end
+
 function M.setup(opts)
-	vim.api.nvim_create_user_command("Maiden", function()
-		vim.ui.select(vim.tbl_keys(cmds), {}, function(choice)
-			if not choice then
-				return
-			end
-			cmds[choice]()
-		end)
-	end, {})
+	vim.api.nvim_create_user_command("Maiden", function(t)
+		if #t.fargs == 0 then
+			vim.ui.select(vim.tbl_keys(cmds), {}, function(choice)
+				if not choice then
+					return
+				end
+				cmds[choice]()
+			end)
+		else
+			local subcmd = table.remove(t.fargs, 1)
+			cmds[subcmd](unpack(t.fargs))
+		end
+	end, {
+		nargs = "*",
+		complete = cmd_completion,
+	})
 end
 
 local mount_dir = vim.fn.tempname()
@@ -26,7 +50,7 @@ local function mount(addr)
 		vim.fn.mkdir(mount_dir, "-p")
 	end
 
-	local cmds = {
+	local cmd = {
 		"sshfs",
 		"-o",
 		"default_permissions",
@@ -34,7 +58,7 @@ local function mount(addr)
 		mount_dir,
 	}
 
-	vim.system(cmds, {}, function(obj)
+	vim.system(cmd, {}, function(obj)
 		local ok = obj.code == 0
 		if ok then
 			util.notify("Synced to norns", vim.log.levels.INFO)
@@ -181,6 +205,10 @@ cmds.uninstall = function()
 		end
 		uninstall(input)
 	end)
+end
+
+cmds.doc = function()
+	vim.ui.open(config.addr .. "/doc")
 end
 
 local keymaps = {
